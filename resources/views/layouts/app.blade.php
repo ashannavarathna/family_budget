@@ -97,6 +97,7 @@
     </div>
     @endif
 
+    <script src="//unpkg.com/alpinejs" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenuButton = document.querySelector('.mobile-menu-button');
@@ -107,5 +108,6 @@
             });
         });
     </script>
+    
 </body>
 </html>

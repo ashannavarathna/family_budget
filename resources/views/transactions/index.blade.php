@@ -21,7 +21,7 @@
                         <option value="">すべて選択</option>
                         @foreach($transactionTypes as $type)
                             <option value="{{ $type->name }}" {{ request('type') == $type->name ? 'selected' : '' }}>
-                                {{ ucfirst($type->name) }}
+                                {{ $type->name }}
                             </option>
                         @endforeach
                     </select>
@@ -125,4 +125,52 @@
         </div>
     </div>
 </div>
+
+<script>
+/**
+document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.getElementById('type');
+    const categorySelect = document.getElementById('category_id');
+
+    // store all category data first
+    const allCategories = Array.from(categorySelect.querySelectorAll('option'))
+        .map(option =>({
+            id: option.value,
+            name: option.textContent,
+            typeId: option.dataset.type
+        }))
+        .filter(opt => opt.id !== ''); 
+
+    function filterCategories() {
+        const selectedType = typeSelect.value;
+        const oldValue = categorySelect.value;
+
+        // Clear current options
+        categorySelect.innerHTML = '<option value="">区分選択</option>';
+
+        // Add only matching allCategories
+        const filtered = allCategories.filter(cat => selectedType === '' || cat.typeId === selectedType);
+        
+        console.log(filtered);
+
+        filtered.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name;
+            categorySelect.appendChild(option);
+        });
+        // Restore old value if still valid
+        if(filtered.some(cat => cat.id === oldValue)){
+            categorySelect.value = oldValue;
+        }
+
+    }
+
+    typeSelect.addEventListener('change', filterCategories);
+    
+    // Initial filter on page load
+    filterCategories();
+});
+*/
+</script>
 @endsection

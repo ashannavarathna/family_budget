@@ -21,7 +21,7 @@
                     <!-- Desktop Menu -->
                     <div class="hidden md:flex space-x-8">
                         <a href="/admin/transactiontype" class="text-gray-600 hover:text-blue-600">取引区分管理</a>
-                        <a href="/admin/category" class="text-gray-600 hover:text-blue-600">勘定科目管理</a>
+                        <a href="" class="text-gray-600 hover:text-blue-600">勘定科目管理</a>
                         <a href="" class="text-gray-600 hover:text-blue-600">ユーザー管理</a>
                         <a href="" class="text-gray-600 hover:text-blue-600">設定</a>
                     </div>
@@ -48,7 +48,7 @@
             <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
                 <div class="px-4 py-3 space-y-2">
                     <a href="/admin/transactiontype" class="block text-gray-700 hover:text-blue-600">取引区分管理</a>
-                    <a href="/admin/category" class="block text-gray-700 hover:text-blue-600">勘定科目管理</a>
+                    <a href="" class="block text-gray-700 hover:text-blue-600">勘定科目管理</a>
                     <a href="" class="block text-gray-700 hover:text-blue-600">ユーザー管理</a>
                     <a href="" class="block text-gray-700 hover:text-blue-600">設定</a>
                 </div>

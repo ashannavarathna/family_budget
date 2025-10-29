@@ -61,52 +61,38 @@
     <!-- 🔹 Main Dashboard Content -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-8">ホーム</h1>
+            <h1 class="text-3xl font-bold text-gray-900 mb-8">勘定科目管理</h1>
 
-            <!-- Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold mb-2">ユーザーカウント</h3>
-                        <p class="text-3xl font-bold text-blue-600">{{ $totalUsers }}</p>
-                    </div>
-                </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold mb-2">取引カウント</h3>
-                        <p class="text-3xl font-bold text-green-600">{{ $totalTransactions }}</p>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Recent Transactions -->
+            <!-- 取引区分リスト -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold mb-4">最近のトランザクション</h3>
+                    <h3 class="text-lg font-semibold mb-4">勘定科目リスト</h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日付</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ユーザー</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">カテゴリー</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">金額</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">種別</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Id</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">取引区分</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">名前</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($recentTransactions as $transaction)
+                                @foreach($categories as $category)
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $transaction->date->format('Y-m-d') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $transaction->user->name ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $transaction->category->name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm {{ $transaction->transaction_type->name === '収入' ? 'text-green-600' : 'text-red-600' }}">
-                                        ¥{{ number_format($transaction->amount) }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $transaction->transaction_type->name === '収入' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                            {{ ucfirst($transaction->transaction_type->name) }}
-                                        </span>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $category->id }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $category->transaction_type->name}}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $category->name}}</td>
+                                    <td class="px-3 py-4 whitespace-nowrap text-sm font-medium sm:px-6">
+                                        <div class="flex space-x-2">
+                                            <a href="{{ route('admin.category.edit', $category) }}" class="text-green-600 hover:text-green-900">編集</a>
+                                            <form action="{{ route('admin.category.destroy', $category) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900">削除</button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -115,7 +101,7 @@
                     </div>
                 </div>
             </div>
-
+        
         </div>
     </div>
 </div>

@@ -21,7 +21,7 @@
                                 <option value="">種別選択</option>
                                 @foreach($transactionTypes as $type)
                                     <option value="{{ $type->id }}" {{ old('transaction_type_id') == $type->id ? 'selected' : '' }}>
-                                        {{ ucfirst($type->name) }}
+                                        {{ $type->name}}
                                     </option>
                                 @endforeach
                             </select>
@@ -140,6 +140,8 @@
 </div>
 
 <script>
+
+/**
 document.addEventListener('DOMContentLoaded', function() {
     const typeSelect = document.getElementById('transaction_type_id');
     const categorySelect = document.getElementById('category_id');
@@ -170,5 +172,63 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial filter on page load
     filterCategories();
 });
+
+*/
+
+/** 20251027 updated 
+ *  reason : mobile browsers handle <option style="display:none"> 
+    differently than desktop browsers.
+
+ *  problem : Most mobile browsers (especially Safari, Chrome on Android, iOS WebView) 
+    do not hide <option> elements with display:none — they still appear in the dropdown list
+ *  solution : Instead of hiding <option> elements, 
+
+    recreate the category list dynamically each time the user changes the transaction type.
+*/
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.getElementById('transaction_type_id');
+    const categorySelect = document.getElementById('category_id');
+
+    // store all category data first
+    const allCategories = Array.from(categorySelect.querySelectorAll('option'))
+        .map(option =>({
+            id: option.value,
+            name: option.textContent,
+            typeId: option.dataset.type
+        }))
+        .filter(opt => opt.id !== ''); 
+
+    function filterCategories() {
+        const selectedType = typeSelect.value;
+        const oldValue = categorySelect.value;
+
+        // Clear current options
+        categorySelect.innerHTML = '<option value="">区分選択</option>';
+
+        // Add only matching allCategories
+        const filtered = allCategories.filter(cat => selectedType === '' || cat.typeId === selectedType);
+        
+        filtered.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name;
+            categorySelect.appendChild(option);
+        });
+
+        // Restore old value if still valid
+        if(filtered.some(cat => cat.id === oldValue)){
+            categorySelect.value = oldValue;
+        }
+
+    }
+
+    typeSelect.addEventListener('change', filterCategories);
+    
+    // Initial filter on page load
+    filterCategories();
+});
+
 </script>
 @endsection
