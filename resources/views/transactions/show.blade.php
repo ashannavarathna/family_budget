@@ -1,94 +1,113 @@
-@extends('layouts.app')
+@extends('layouts.admin') {{-- Ensure this extends your AdminLTE layout --}}
 
 @section('title', '取引詳細')
 
 @section('content')
-<div class="py-12">
-    <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6">
-                <div class="flex justify-between items-start mb-6">
-                    <h1 class="text-2xl font-bold text-gray-900">取引詳細</h1>
-                    <div class="flex space-x-2">
-                        <a href="{{ route('transactions.edit', $transaction) }}" 
-                           class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium">
-                            編集
-                        </a>
-                        <form action="{{ route('transactions.destroy', $transaction) }}" method="POST" 
-                              onsubmit="return confirm('Are you sure you want to delete this transaction?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" 
-                                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium">
-                                削除
-                            </button>
-                        </form>
-                    </div>
-                </div>
 
-                <div class="border-t border-gray-200">
-                    <dl class="divide-y divide-gray-200">
-                        <div class="py-4 grid grid-cols-3 gap-4">
-                            <dt class="text-sm font-medium text-gray-500">日付</dt>
-                            <dd class="text-sm text-gray-900 col-span-2">{{ $transaction->date->format('F j, Y') }}</dd>
-                        </div>
-                        <div class="py-4 grid grid-cols-3 gap-4">
-                            <dt class="text-sm font-medium text-gray-500">種別</dt>
-                            <dd class="text-sm text-gray-900 col-span-2">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $transaction->transaction_type->name === '収入' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                    {{ ucfirst($transaction->transaction_type->name) }}
-                                </span>
-                            </dd>
-                        </div>
-                        <div class="py-4 grid grid-cols-3 gap-4">
-                            <dt class="text-sm font-medium text-gray-500">区分</dt>
-                            <dd class="text-sm text-gray-900 col-span-2">{{ $transaction->category->name }}</dd>
-                        </div>
-                        <div class="py-4 grid grid-cols-3 gap-4">
-                            <dt class="text-sm font-medium text-gray-500">収支担当者</dt>
-                            <dd class="text-sm text-gray-900 col-span-2">{{ $transaction->account->name }}</dd>
-                        </div>
-                        <div class="py-4 grid grid-cols-3 gap-4">
-                            <dt class="text-sm font-medium text-gray-500">相手先</dt>
-                            <dd class="text-sm text-gray-900 col-span-2">{{ $transaction->party }}</dd>
-                        </div>
-                        <div class="py-4 grid grid-cols-3 gap-4">
-                            <dt class="text-sm font-medium text-gray-500">領収書番号</dt>
-                            <dd class="text-sm text-gray-900 col-span-2">{{ $transaction->receipt_number }}</dd>
-                        </div>
-                        <div class="py-4 grid grid-cols-3 gap-4">
-                            <dt class="text-sm font-medium text-gray-500">金額</dt>
-                            <dd class="text-sm font-semibold {{ $transaction->transaction_type->name === 'income' ? 'text-green-600' : 'text-red-600' }} col-span-2">
-                                ¥{{ number_format($transaction->amount, 2) }}
-                            </dd>
-                        </div>
-                        <div class="py-4 grid grid-cols-3 gap-4">
-                            <dt class="text-sm font-medium text-gray-500">備考</dt>
-                            <dd class="text-sm text-gray-900 col-span-2">{{ $transaction->description ?? 'N/A' }}</dd>
-                        </div>
-                        <div class="py-4 grid grid-cols-3 gap-4">
-                            <dt class="text-sm font-medium text-gray-500">作成者</dt>
-                            <dd class="text-sm text-gray-900 col-span-2">{{ $transaction->user->name ?? 'N/A' }}</dd>
-                        </div>
-                        <div class="py-4 grid grid-cols-3 gap-4">
-                            <dt class="text-sm font-medium text-gray-500">作成日時</dt>
-                            <dd class="text-sm text-gray-900 col-span-2">{{ $transaction->created_at->format('F j, Y g:i A') }}</dd>
-                        </div>
-                        <div class="py-4 grid grid-cols-3 gap-4">
-                            <dt class="text-sm font-medium text-gray-500">更新日時</dt>
-                            <dd class="text-sm text-gray-900 col-span-2">{{ $transaction->updated_at->format('F j, Y g:i A') }}</dd>
-                        </div>
-                    </dl>
-                </div>
-
-                <div class="mt-6">
-                    <a href="{{ route('transactions.index') }}" 
-                       class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium">
-                        取引一覧に戻る
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>取引詳細</h1>
+            </div>
+            <div class="col-sm-6">
+                {{-- Action buttons aligned right --}}
+                <div class="float-sm-right btn-group">
+                    {{-- Edit Button (Green -> Warning/Yellow in AdminLTE) --}}
+                    <a href="{{ route('transactions.edit', $transaction) }}" class="btn btn-warning" title="編集">
+                        <i class="fas fa-edit"></i> 編集
                     </a>
+                    
+                    {{-- Delete Button (Red) --}}
+                    <form action="{{ route('transactions.destroy', $transaction) }}" method="POST" 
+                          onsubmit="return confirm('削除してもよろしいですか？')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger" title="削除">
+                            <i class="fas fa-trash"></i> 削除
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            {{-- Using col-md-8 to limit width, similar to max-w-3xl --}}
+            <div class="col-md-8"> 
+                <div class="card card-info card-outline"> {{-- Using a clean card style --}}
+                    <div class="card-header">
+                        <h3 class="card-title">取引情報</h3>
+                    </div>
+                    <div class="card-body">
+                        {{-- Detail list using Bootstrap's grid system for definition list style --}}
+                        
+                        <dl class="row mb-0">
+                            {{-- Date --}}
+                            <dt class="col-sm-4 text-muted">日付</dt>
+                            <dd class="col-sm-8">{{ $transaction->date->format('Y年n月j日') }}</dd>
+
+                            {{-- Type --}}
+                            <dt class="col-sm-4 text-muted">取引タイプ</dt>
+                            <dd class="col-sm-8">
+                                {{-- Bootstrap Badge for Transaction Type --}}
+                                <span class="badge {{ $transaction->transaction_type->name === '収入' ? 'bg-success' : 'bg-danger' }}">
+                                    {{ ucfirst($transaction->transaction_type->name) }}
+                                </span>
+                            </dd>
+
+                            {{-- Category --}}
+                            <dt class="col-sm-4 text-muted">取引カテゴリー</dt>
+                            <dd class="col-sm-8">{{ $transaction->category->name }}</dd>
+
+                            {{-- Account --}}
+                            <dt class="col-sm-4 text-muted">収支担当者</dt>
+                            <dd class="col-sm-8">{{ $transaction->account->name }}</dd>
+
+                            {{-- Party --}}
+                            <dt class="col-sm-4 text-muted">収支先</dt>
+                            <dd class="col-sm-8">{{ $transaction->party }}</dd>
+
+                            {{-- Receipt Number --}}
+                            <dt class="col-sm-4 text-muted">領収書番号</dt>
+                            <dd class="col-sm-8">{{ $transaction->receipt_number }}</dd>
+
+                            {{-- Amount --}}
+                            <dt class="col-sm-4 text-muted">金額</dt>
+                            <dd class="col-sm-8 font-weight-bold {{ $transaction->transaction_type->name === '収入' ? 'text-success' : 'text-danger' }}">
+                                ¥{{ number_format($transaction->amount) }}
+                            </dd>
+
+                            {{-- Description --}}
+                            <dt class="col-sm-4 text-muted">備考</dt>
+                            <dd class="col-sm-8 text-break">{{ $transaction->description ?? 'N/A' }}</dd>
+                            
+                            {{-- Separator for audit fields --}}
+                            <div class="col-12"><hr class="my-3"></div>
+
+                            {{-- Created By --}}
+                            <dt class="col-sm-4 text-muted">作成者</dt>
+                            <dd class="col-sm-8">{{ $transaction->user->name ?? 'N/A' }}</dd>
+
+                            {{-- Created At --}}
+                            <dt class="col-sm-4 text-muted">作成日時</dt>
+                            <dd class="col-sm-8">{{ $transaction->created_at->format('Y/m/d H:i') }}</dd>
+
+                            {{-- Updated At --}}
+                            <dt class="col-sm-4 text-muted">更新日時</dt>
+                            <dd class="col-sm-8">{{ $transaction->updated_at->format('Y/m/d H:i') }}</dd>
+                        </dl>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ route('transactions.index') }}" class="btn btn-default">
+                            <i class="fas fa-chevron-left"></i> 取引一覧に戻る
+                        </a>
+                    </div>
+                    </div>
+                </div>
+        </div>
+    </div></section>
 @endsection

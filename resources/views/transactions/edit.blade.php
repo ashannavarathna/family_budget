@@ -1,145 +1,164 @@
-@extends('layouts.app')
+@extends('layouts.admin') {{-- NOTE: Ensure this matches your AdminLTE layout file name --}}
 
 @section('title', '取引編集')
 
 @section('content')
-<div class="py-12">
-    <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6">
-                <h1 class="text-2xl font-bold text-gray-900 mb-6">取引編集</h1>
 
-                <form action="{{ route('transactions.update', $transaction) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Transaction Type -->
-                        <div>
-                            <label for="transaction_type_id" class="block text-sm font-medium text-gray-700">取引種別 *</label>
-                            <select name="transaction_type_id" id="transaction_type_id" required
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">種別選択</option>
-                                @foreach($transactionTypes as $type)
-                                    <option value="{{ $type->id }}" {{ old('transaction_type_id', $transaction->transaction_type_id) == $type->id ? 'selected' : '' }}>
-                                        {{ ucfirst($type->name) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('transaction_type_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Category -->
-                        <div>
-                            <label for="category_id" class="block text-sm font-medium text-gray-700">区分 *</label>
-                            <select name="category_id" id="category_id" required
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">区分選択</option>
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" 
-                                            data-type="{{ $category->transaction_type_id }}"
-                                            {{ old('category_id', $transaction->category_id) == $category->id ? 'selected' : '' }}>
-                                        {{ $category->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('category_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Account -->
-                        <div>
-                            <label for="account_id" class="block text-sm font-medium text-gray-700">収支担当者 *</label>
-                            <select name="account_id" id="account_id" required
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">収支担当者選択</option>
-                                @foreach($accounts as $account)
-                                    <option value="{{ $account->id }}" 
-                                            {{ old('account_id', $transaction->user_id == $account->id ? 'selected' : '' )  }}>
-                                        {{ $account->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('account_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Date -->
-                        <div>
-                            <label for="date" class="block text-sm font-medium text-gray-700">Date *</label>
-                            <input type="date" name="date" id="date" required
-                                   value="{{ old('date', $transaction->date->format('Y-m-d')) }}"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                            @error('date')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- 相手先 -->
-                        <div>
-                            <label for="party" class="block text-sm font-medium text-gray-700">相手先 *</label>
-                            <input type="text" name="party" id="party" required
-                                   value="{{ old('party', $transaction->party) }}" placeholder="相手先"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                            @error('party')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- 領収書番号 -->
-                        <div>
-                            <label for="receipt_number" class="block text-sm font-medium text-gray-700">領収書番号 *</label>
-                            <input type="text" name="receipt_number" id="receipt_number" required 
-                                   value="{{ old('receipt_number', $transaction->receipt_number) }}" placeholder="領収書番号"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                            @error('receipt_number')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Amount -->
-                        <div>
-                            <label for="amount" class="block text-sm font-medium text-gray-700">Amount *</label>
-                            <input type="number" name="amount" id="amount" required step="0.01" min="0.01"
-                                   value="{{ old('amount', $transaction->amount) }}" placeholder="0.00"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                            @error('amount')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Description -->
-                        <div class="md:col-span-2">
-                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <textarea name="description" id="description" rows="3"
-                                      class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                                      placeholder="Optional description">{{ old('description', $transaction->description) }}</textarea>
-                            @error('description')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="mt-6 flex justify-end space-x-3">
-                        <a href="{{ route('transactions.index') }}" 
-                           class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium">
-                            取り消し
-                        </a>
-                        <button type="submit" 
-                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium">
-                            編集
-                        </button>
-                    </div>
-                </form>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-12">
+                <h1>取引編集</h1>
             </div>
         </div>
     </div>
-</div>
+</section>
 
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            {{-- Using col-md-8 to limit width, similar to max-w-3xl --}}
+            <div class="col-md-8"> 
+                {{-- Using card-warning color typically associated with editing/caution --}}
+                <div class="card card-warning"> 
+                    <div class="card-header">
+                        <h3 class="card-title">取引の更新</h3>
+                    </div>
+                    <form action="{{ route('transactions.update', $transaction) }}" method="POST">
+                        @csrf
+                        @method('PUT') {{-- Required for the PUT method --}}
+                        
+                        <div class="card-body">
+                            {{-- Bootstrap row and form-group replace the Tailwind grid and spacing --}}
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label for="transaction_type_id">取引タイプ *</label>
+                                    <select name="transaction_type_id" id="transaction_type_id" required
+                                            class="form-control @error('transaction_type_id') is-invalid @enderror">
+                                        <option value="">タイプ選択</option>
+                                        @foreach($transactionTypes as $type)
+                                            <option value="{{ $type->id }}" 
+                                                {{ old('transaction_type_id', $transaction->transaction_type_id) == $type->id ? 'selected' : '' }}>
+                                                {{ ucfirst($type->name) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('transaction_type_id')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6 form-group">
+                                    <label for="category_id">取引カテゴリー *</label>
+                                    <select name="category_id" id="category_id" required
+                                            class="form-control @error('category_id') is-invalid @enderror">
+                                        <option value="">カテゴリー選択</option>
+                                        @foreach($categories as $category)
+                                            <option value="{{ $category->id }}" 
+                                                    data-type="{{ $category->transaction_type_id }}"
+                                                    {{ old('category_id', $transaction->category_id) == $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('category_id')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label for="account_id">収支担当者 *</label>
+                                    <select name="account_id" id="account_id" required
+                                            class="form-control @error('account_id') is-invalid @enderror">
+                                        <option value="">収支担当者選択</option>
+                                        @foreach($accounts as $account)
+                                            {{-- NOTE: I corrected the old() check here, as $transaction->user_id looks wrong for account_id --}}
+                                            <option value="{{ $account->id }}" 
+                                                    {{ old('account_id', $transaction->account_id) == $account->id ? 'selected' : '' }}>
+                                                {{ $account->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('account_id')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6 form-group">
+                                    <label for="date">日付 *</label>
+                                    <input type="date" name="date" id="date" required
+                                            value="{{ old('date', $transaction->date->format('Y-m-d')) }}"
+                                            class="form-control @error('date') is-invalid @enderror">
+                                    @error('date')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label for="party">収支先 *</label>
+                                    <input type="text" name="party" id="party" required
+                                            value="{{ old('party', $transaction->party) }}" placeholder="相手先"
+                                            class="form-control @error('party') is-invalid @enderror">
+                                    @error('party')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6 form-group">
+                                    <label for="receipt_number">領収書番号 *</label>
+                                    <input type="text" name="receipt_number" id="receipt_number" required 
+                                            value="{{ old('receipt_number', $transaction->receipt_number) }}" placeholder="領収書番号"
+                                            class="form-control @error('receipt_number') is-invalid @enderror">
+                                    @error('receipt_number')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label for="amount">金額 *</label>
+                                    <input type="number" name="amount" id="amount" required step="0.01" min="0.01"
+                                            value="{{ old('amount', $transaction->amount) }}" placeholder="0.00"
+                                            class="form-control @error('amount') is-invalid @enderror">
+                                    @error('amount')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12 form-group">
+                                    <label for="description">備考</label>
+                                    <textarea name="description" id="description" rows="3"
+                                                class="form-control @error('description') is-invalid @enderror"
+                                                placeholder="任意の備考">{{ old('description', $transaction->description) }}</textarea>
+                                    @error('description')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ route('transactions.index') }}" class="btn btn-default">
+                                <i class="fas fa-times"></i> 取り消し
+                            </a>
+                            <button type="submit" class="btn btn-warning float-right">
+                                <i class="fas fa-save"></i> 編集
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                </div>
+        </div>
+    </div></section>
+
+{{-- The JavaScript below must remain to enable dynamic category filtering. --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const typeSelect = document.getElementById('transaction_type_id');
@@ -156,19 +175,29 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (selectedType === '' || option.getAttribute('data-type') === selectedType) {
+                // Show the option
                 option.style.display = 'block';
             } else {
+                // Hide the option
                 option.style.display = 'none';
+                
+                // Unselect if it was selected and is now hidden
                 if (option.selected) {
                     option.selected = false;
                 }
             }
         });
+
+        // If the current selected value is now hidden, try to reset to the default or force selection
+        // This is a browser behavior fix for when the originally selected option is hidden
+        if(categorySelect.selectedIndex > -1 && categorySelect.options[categorySelect.selectedIndex].style.display === 'none') {
+             categorySelect.value = ''; // Reset selection
+        }
     }
 
     typeSelect.addEventListener('change', filterCategories);
     
-    // Initial filter on page load
+    // Initial filter on page load to ensure the pre-selected category is visible
     filterCategories();
 });
 </script>

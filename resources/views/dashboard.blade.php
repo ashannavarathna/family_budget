@@ -1,120 +1,151 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'ダッシュボード')
 
 @section('content')
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-8">ダッシュボード</h1>
-        
-        <!-- Monthly Summary -->
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-            <div class="p-6">
-                <h3 class="text-lg font-semibold mb-4">月次概要 ({{ date('Y') }})</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">月</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">収入</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">支出</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">残高</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($monthlySummary as $summary)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ DateTime::createFromFormat('!m', $summary->month)->format('F (m)') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">¥{{ number_format($summary->total_income) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">¥{{ number_format($summary->total_expense) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold {{ $summary->net_balance >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                                    ¥{{ number_format($summary->net_balance) }}
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Dashboard</h1>
+            </div>
+            <div class="col-sm-6">
+                {{-- Breadcrumbs or other header elements go here if needed --}}
             </div>
         </div>
+    </div>
+</section>
 
-        <!-- Recent Transactions -->
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6">
-                <h3 class="text-lg font-semibold mb-4">直近の取引</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日付</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">区分</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">備考</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">金額</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($recentTransactions as $transaction)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $transaction->date }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $transaction->category_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $transaction->description }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm {{ $transaction->type_name === '収入' ? 'text-green-600' : 'text-red-600' }}">
-                                    ¥{{ number_format($transaction->amount) }}
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+<section class="content">
+    <div class="container-fluid">
 
-        <!-- Summary by Type -->
-        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h3 class="text-lg font-semibold mb-4">種別別の概要</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @foreach($summaryByType as $summary)
-                <div class="border rounded-lg p-4 {{ $summary->type === '収入' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50' }}">
-                    <h4 class="font-semibold capitalize {{ $summary->type === '収入' ? 'text-green-800' : 'text-red-800' }}">
-                        {{ $summary->type }}
-                    </h4>
-                    <p class="text-2xl font-bold {{ $summary->type === '収入' ? 'text-green-600' : 'text-red-600' }}">
-                        ¥{{ number_format($summary->total_amount) }}
-                    </p>
-                    <p class="text-sm text-gray-600">{{ $summary->transaction_count }} 取引</p>
-                    <!--p class="text-sm text-gray-600">平均: ¥{{ number_format($summary->average_amount) }}</p-->
-                </div>
-                @endforeach
-            </div>
-        </div>
-
-        <!-- Type Statistics with Growth -->
-        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h3 class="text-lg font-semibold mb-4">年度比較</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @foreach($typeStatistics as $stat)
-                <div class="border rounded-lg p-4 {{ $stat['type'] === '収入' ? 'border-green-200' : 'border-red-200' }}">
-                    <h4 class="font-semibold capitalize {{ $stat['type'] === '収入' ? 'text-green-800' : 'text-red-800' }}">
-                        {{ $stat['type'] }}
-                    </h4>
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <p class="text-lg font-bold {{ $stat['type'] === '収入' ? 'text-green-600' : 'text-red-600' }}">
-                                ¥{{ number_format($stat['current_year_total']) }}
-                            </p>
-                            <p class="text-sm text-gray-600">前年: ¥{{ number_format($stat['previous_year_total']) }}</p>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">月次概要 ({{ date('Y') }})</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 10%">月</th>
+                                        <th style="width: 30%">収入</th>
+                                        <th style="width: 30%">支出</th>
+                                        <th style="width: 30%">残高</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($monthlySummary as $summary)
+                                    <tr>
+                                        <td>{{ DateTime::createFromFormat('!m', $summary->month)->format('F (m)') }}</td>
+                                        <td class="text-success">¥{{ number_format($summary->total_income) }}</td>
+                                        <td class="text-danger">¥{{ number_format($summary->total_expense) }}</td>
+                                        <td class="font-weight-bold {{ $summary->net_balance >= 0 ? 'text-success' : 'text-danger' }}">
+                                            ¥{{ number_format($summary->net_balance) }}
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="text-right">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $stat['growth_percentage'] >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                {{ $stat['growth_percentage'] >= 0 ? '+' : '' }}{{ $stat['growth_percentage'] }}%
-                            </span>
+                    </div>
+                    </div>
+                </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">直近の取引</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>日付</th>
+                                        <th>カテゴリー</th>
+                                        <th>備考</th>
+                                        <th>金額</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($recentTransactions as $transaction)
+                                    <tr>
+                                        <td>{{ $transaction->date }}</td>
+                                        <td>{{ $transaction->category_name }}</td>
+                                        <td>{{ $transaction->description }}</td>
+                                        <td class="{{ $transaction->type_name === '収入' ? 'text-success' : 'text-danger' }}">
+                                            ¥{{ number_format($transaction->amount) }}
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-primary card-outline"> {{-- Using AdminLTE "card-outline" for a clean look --}}
+                    <div class="card-header">
+                        <h3 class="card-title">取引タイプ別の概要</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row"> {{-- Inner Bootstrap row for the grid --}}
+                            @foreach($summaryByType as $summary)
+                            <div class="col-md-6 mb-3">
+                                <div class="info-box {{ $summary->type === '収入' ? 'bg-success' : 'bg-danger' }}">
+                                    <span class="info-box-icon"><i class="fas {{ $summary->type === '収入' ? 'fa-plus' : 'fa-minus' }}"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">{{ $summary->type }}</span>
+                                        <span class="info-box-number">¥{{ number_format($summary->total_amount) }}</span>
+                                        <span class="progress-description">
+                                            {{ $summary->transaction_count }} 取引
+                                        </span>
+                                    </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
-                @endforeach
+            </div>
+
+            <div class="col-md-6">
+                <div class="card card-info card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">年度比較</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row"> {{-- Inner Bootstrap row for the grid --}}
+                            @foreach($typeStatistics as $stat)
+                            <div class="col-md-6 mb-3">
+                                <div class="info-box {{ $stat['type'] === '収入' ? 'bg-white border border-success' : 'bg-white border border-danger' }}">
+                                    <span class="info-box-icon {{ $stat['type'] === '収入' ? 'bg-success' : 'bg-danger' }}"><i class="fas fa-chart-line"></i></span>
+                                    <div class="info-box-content text-dark">
+                                        <span class="info-box-text">{{ $stat['type'] }}</span>
+                                        <span class="info-box-number">¥{{ number_format($stat['current_year_total']) }}</span>
+                                        <span class="progress-description {{ $stat['growth_percentage'] >= 0 ? 'text-success' : 'text-danger' }}">
+                                            <i class="fas {{ $stat['growth_percentage'] >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+                                            {{ $stat['growth_percentage'] >= 0 ? '+' : '' }}{{ $stat['growth_percentage'] }}%
+                                            <small class="text-muted d-block">前年: ¥{{ number_format($stat['previous_year_total']) }}</small>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-    </div>
-</div>
+    </div></section>
 @endsection

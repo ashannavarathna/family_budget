@@ -72,6 +72,7 @@ Route::middleware(['auth'])->group(function (){
 // Admin routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function (){
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::resource('/transactiontype', 'Admin\TransactionTypeController');
-    Route::resource('/category', 'Admin\CategoryController');
+    Route::resource('/transaction_types', 'Admin\TransactionTypeController');
+    //->parameters(['transaction_types' => 'transactionType']);
+    Route::resource('/categories', 'Admin\CategoryController');
 });
