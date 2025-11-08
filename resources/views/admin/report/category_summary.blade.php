@@ -8,7 +8,7 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-12">
-                <h1>勘定科目別サマリーレポート</h1>
+                <h1>取引カテゴリー別サマリーレポート</h1>
             </div>
         </div>
     </div></section>
@@ -106,14 +106,14 @@
                 {{-- Card for the Report Table --}}
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">勘定科目別 集計結果</h3>
+                        <h3 class="card-title">カテゴリー別 集計結果</h3>
                     </div>
                     <div class="card-body">
                         <table id="categorySummaryTable" class="table table-bordered table-striped">
                             <thead>
                                 <tr>
-                                    <th style="width: 25%">勘定科目</th>
-                                    <th style="width: 15%">取引区分</th>
+                                    <th style="width: 25%">カテゴリー</th>
+                                    <th style="width: 15%">タイプ</th>
                                     <th class="text-right">取引件数</th>
                                     <th class="text-right">合計金額</th>
                                     <th class="text-right">平均金額</th>

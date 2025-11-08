@@ -54,7 +54,7 @@
                 <li class="nav-item">
                     <a href="{{ route('admin.reports.category-summary') }}" class="nav-link">
                         <i class="nav-icon fas fa-chart-pie"></i>
-                        <p>勘定科目別サマリー</p>
+                        <p>カテゴリー別サマリー</p>
                     </a>
                 </li>
 
