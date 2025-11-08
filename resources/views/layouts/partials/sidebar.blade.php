@@ -39,6 +39,25 @@
                         </p>
                     </a>
                 </li>
+
+                <li class="nav-header">レポート</li>
+
+                {{-- 月間サマリーレポート --}}
+                <li class="nav-item">
+                    <a href="{{ route('admin.reports.monthly-summary') }}" class="nav-link">
+                        <i class="nav-icon fas fa-chart-line"></i>
+                        <p>月間サマリー</p>
+                    </a>
+                </li>
+
+                {{-- 勘定科目別サマリーレポート --}}
+                <li class="nav-item">
+                    <a href="{{ route('admin.reports.category-summary') }}" class="nav-link">
+                        <i class="nav-icon fas fa-chart-pie"></i>
+                        <p>勘定科目別サマリー</p>
+                    </a>
+                </li>
+
                 <li class="nav-header">設定</li>                
                 <li class="nav-item">
                     <a href="{{ route('admin.transaction_types.index') }}" class="nav-link">

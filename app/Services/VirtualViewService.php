@@ -266,8 +266,7 @@ class VirtualViewService
                 DB::raw('COUNT(transactions.id) as transaction_count'),
                 DB::raw('SUM(transactions.amount) as total_amount'),
                 DB::raw('AVG(transactions.amount) as average_amount')
-            );
-            //->where('transactions.user_id', $userId);
+            )->where('transactions.user_id', $userId);
 
         if ($startDate) {
             $query->where('transactions.date', '>=', $startDate);

@@ -75,4 +75,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('/transaction_types', 'Admin\TransactionTypeController');
     //->parameters(['transaction_types' => 'transactionType']);
     Route::resource('/categories', 'Admin\CategoryController');
+
+    // 👇 ここに新しいレポートルートを追加します
+    Route::get('/reports/monthly-summary', 'Admin\ReportController@monthlySummary')->name('reports.monthly-summary');
+    Route::get('/reports/category-summary', 'Admin\ReportController@categorySummary')->name('reports.category-summary');
+
 });
