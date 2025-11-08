@@ -19,7 +19,7 @@
             <div class="col-12">
                 
                 {{-- Card for Filters (Optional - Collapsed by default) --}}
-                <div class="card card-outline card-info collapsed-card">
+                <div class="card card-outline card-info">
                     <div class="card-header">
                         <h3 class="card-title">期間の絞り込み</h3>
                         <div class="card-tools">

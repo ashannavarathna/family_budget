@@ -253,9 +253,10 @@ class VirtualViewService
     /**
      * Get category summary
      */
-    public function getCategorySummary($userId = null, $startDate = null, $endDate = null)
+    public function getCategorySummary($userId = null, $startDate = null, $endDate = null, $transactionTypeId = null, $categoryId = null)
     {
-        $userId = $userId ?: auth()->id();
+        // Keep it as null if no ID is passed, which indicates "all users" for an admin report. 
+        //$userId = $userId ?: auth()->id();
 
         $query = DB::table('transactions')
             ->join('categories', 'transactions.category_id', '=', 'categories.id')
@@ -266,17 +267,25 @@ class VirtualViewService
                 DB::raw('COUNT(transactions.id) as transaction_count'),
                 DB::raw('SUM(transactions.amount) as total_amount'),
                 DB::raw('AVG(transactions.amount) as average_amount')
-            )->where('transactions.user_id', $userId);
-            
+            );
+
+        if($userId){
+            $query->where('transactions.user_id', $userId);
+        }
         if ($startDate) {
             $query->where('transactions.date', '>=', $startDate);
         }
         if ($endDate) {
             $query->where('transactions.date', '<=', $endDate);
         }
+        if($transactionTypeId){
+            $query->where('transactions.transaction_type_id', $transactionTypeId);
+        }
+        if($categoryId){
+            $query->where('transactions.category_id', $categoryId);
+        }
 
-        return $query->groupBy('categories.name', 'transaction_types.name')
-                    ->get();
+        return $query->groupBy('categories.name', 'transaction_types.name')->get();
     }
 
     /**

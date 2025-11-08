@@ -78,6 +78,30 @@
                
             </ul>
         </nav>
+
+        {{-- ログアウトフォームをサイドバーの最下部に配置 --}}
+        <nav class="mt-2 mb-4"> {{-- mb-4: 下部に少しマージンを追加 --}}
+            <ul class="nav nav-pills nav-sidebar flex-column">
+                <li class="nav-item">
+                    <form method="POST" action="{{ route('logout') }}" class="nav-link" style="padding: 0; border: none;">
+                        @csrf
+                        {{-- button type="submit"をリンクのようにスタイリング --}}
+                        <button type="submit" class="btn btn-link nav-link" style="
+                            width: 100%; 
+                            text-align: left; 
+                            color: #c2c7d0; /* AdminLTEの標準テキスト色 */
+                            padding: 8px 15px; /* nav-linkの標準パディング */
+                            border: none;
+                            text-decoration: none;
+                        ">
+                            <i class="nav-icon fas fa-sign-out-alt"></i>
+                            <p>ログアウト</p>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </nav>        
+
         <!-- /.sidebar-menu -->
     </div>
     <!-- /.sidebar -->

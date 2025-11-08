@@ -70,9 +70,9 @@ class ReportController extends Controller
         $categorySummary = $this->viewService->getCategorySummary(
             $userId,
             $startDate,
-            $endDate
-            // もしサービス内で取引タイプやカテゴリーによるフィルタリングも行う場合は、
-            // サービスメソッドのシグネチャに追加して渡す必要があります。
+            $endDate,
+            $transactionTypeId,
+            $categoryId
         ); 
 
 

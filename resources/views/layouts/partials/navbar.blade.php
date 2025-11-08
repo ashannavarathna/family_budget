@@ -11,11 +11,11 @@
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
-        <li class="nav-item d-none d-sm-inline-block">
+        <!--li class="nav-item d-none d-sm-inline-block">
             <form method="POST" action="/logout">
-                @csrf
+                @ csrf
                 <button type="submit" class="btn btn-link text-secondary">ログアウト</button>
             </form>
-        </li>
+        </li-->
     </ul>
 </nav>
