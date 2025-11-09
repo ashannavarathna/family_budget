@@ -1,31 +1,42 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>家計簿へようこそ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen font-sans">
+@extends('layouts.app')
 
-    <div class="flex items-center justify-center min-h-screen p-4 sm:p-10">
-        <div class="bg-white p-6 sm:p-10 rounded-lg shadow-md max-w-lg text-center">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">
-                家計簿へようこそ
-            </h1>
-            <p class="text-base sm:text-lg text-gray-600 mb-8">
-                家計を管理し、収入と支出を追跡し、家計目標を達成しましょう。
-            </p>
-            <div class="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
-                <a href="login" class="flex-1 bg-blue-600 text-white text-lg font-semibold py-4 px-8 rounded-lg shadow-md transition-colors duration-300 hover:bg-blue-700">
-                    ログイン
-                </a>
-                <a href="register" class="flex-1 bg-green-500 text-white text-lg font-semibold py-4 px-8 rounded-lg shadow-md transition-colors duration-300 hover:bg-green-600">
-                    新規登録
-                </a>
+@section('title', '家計簿へようこそ')
+
+{{-- 画面全体にフィットし、中央揃えを可能にするbody_classを適用 --}}
+@section('body_class', 'hold-transition')
+
+@section('content')
+{{-- 以下の<div>が、画面いっぱいに広がり、内部のコンテンツを垂直・水平方向に中央揃えします --}}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="col-md-8 col-lg-6"> {{-- 中央揃えを適用するため、コンテナを直接削除し、col-md-8を親に昇格 --}}
+        <div class="card card-primary card-outline w-100">
+            <div class="card-header text-center">
+                <h1 class="h1"><b>家計簿</b> 1.0</h1>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="h3 mb-4 text-gray-800">
+                    家計簿へようこそ
+                </h2>
+                <p class="lead text-gray-600 mb-5">
+                    家計を管理し、収入と支出を追跡し、家計目標を達成しましょう。
+                </p>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3 mb-sm-0">
+                        {{-- ログインボタン --}}
+                        <a href="{{ route('login') }}" class="btn btn-primary btn-lg btn-block">
+                            <i class="fas fa-sign-in-alt mr-2"></i> ログイン
+                        </a>
+                    </div>
+                    <div class="col-sm-6">
+                        {{-- 登録ボタン --}}
+                        <a href="{{ route('register') }}" class="btn btn-success btn-lg btn-block">
+                            <i class="fas fa-user-plus mr-2"></i> 登録
+                        </a>
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
     </div>
-
-</body>
-</html>
+@endsection
