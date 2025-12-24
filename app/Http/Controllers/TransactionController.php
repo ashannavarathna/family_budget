@@ -8,6 +8,7 @@ use App\Models\TransactionType;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
@@ -34,13 +35,24 @@ class TransactionController extends Controller
         // Filter by date range
         if ($request->has('start_date') && $request->start_date != '') {
             $query->where('date', '>=', $request->start_date);
+        }else{
+            // set to current month start date
+            //Carbon::now()->startOfMonth()->toDateString();
+            $query->where('date', '>=', Carbon::now()->startOfMonth()->toDateString());
         }
 
         if ($request->has('end_date') && $request->end_date != '') {
             $query->where('date', '<=', $request->end_date);
+        }else{
+            // set to curent month end date
+            //Carbon::now()->endOfMonth()->toDateString();
+            $query->where('date', '<=', Carbon::now()->endOfMonth()->toDateString());
         }
 
-        $transactions = $query->latest()->paginate(10);
+        //$transactions = $query->latest()->paginate(10);
+        //listing by desc with date column
+        $transactions = $query->orderBy('date', 'desc')->paginate(10);
+
         $categories = Category::with('transaction_type')->get();
         $transactionTypes = TransactionType::all();
 
