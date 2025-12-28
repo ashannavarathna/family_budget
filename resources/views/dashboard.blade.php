@@ -25,21 +25,21 @@
                     <div class="card-header">
                         <h3 class="card-title">月次概要 ({{ date('Y') }})</h3>
                     </div>
-                    <div class="card-body p-0">
+                    <div class="card-body p-2">
                         <div class="table-responsive">
-                            <table class="table table-striped table-hover">
+                            <table class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th style="width: 10%">月</th>
-                                        <th style="width: 30%">収入</th>
-                                        <th style="width: 30%">支出</th>
-                                        <th style="width: 30%">残高</th>
+                                        <th >月</th>
+                                        <th >収入</th>
+                                        <th >支出</th>
+                                        <th >残高</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($monthlySummary as $summary)
                                     <tr>
-                                        <td>{{ DateTime::createFromFormat('!m', $summary->month)->format('F (m)') }}</td>
+                                        <td><span class="badge">{{ DateTime::createFromFormat('!m', $summary->month)->format('F (m)') }}</span></td>
                                         <td class="text-success">¥{{ number_format($summary->total_income) }}</td>
                                         <td class="text-danger">¥{{ number_format($summary->total_expense) }}</td>
                                         <td class="font-weight-bold {{ $summary->net_balance >= 0 ? 'text-success' : 'text-danger' }}">
@@ -61,24 +61,30 @@
                     <div class="card-header">
                         <h3 class="card-title">直近の取引</h3>
                     </div>
-                    <div class="card-body p-0">
+                    <div class="card-body p-2">
                         <div class="table-responsive">
-                            <table class="table table-striped table-hover">
+                            <table class="table table-bordered">
                                 <thead>
                                     <tr>
                                         <th>日付</th>
-                                        <th>カテゴリー</th>
-                                        <th>備考</th>
+                                        <th>カ</th>
+                                        <th>タ</th>
                                         <th>金額</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($recentTransactions as $transaction)
                                     <tr>
-                                        <td>{{ $transaction->date }}</td>
-                                        <td>{{ $transaction->category_name }}</td>
-                                        <td>{{ $transaction->description }}</td>
-                                        <td class="{{ $transaction->type_name === '収入' ? 'text-success' : 'text-danger' }}">
+                                        <td><span class="badge">{{  date("Y-m-d", strtotime($transaction->date)) }}</span></td>
+                                        <td><span class="badge bg-dark">{{ $transaction->category_name }}</span></td>
+                                        <td>
+                                            {{-- Bootstrap Badge for Transaction Type --}}
+                                            <span class="badge {{ $transaction->type_name === '収入' ? 'bg-success' : 'bg-danger' }}">
+                                                {{ $transaction->type_name }}
+                                            </span>
+
+                                        </td>
+                                        <td >
                                             ¥{{ number_format($transaction->amount) }}
                                         </td>
                                     </tr>
@@ -91,7 +97,7 @@
                 </div>
         </div>
         
-        <div class="row">
+        <!--div class="row">
             <div class="col-md-6">
                 <div class="card card-primary card-outline"> {{-- Using AdminLTE "card-outline" for a clean look --}}
                     <div class="card-header">
@@ -145,7 +151,8 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div-->
 
-    </div></section>
+    </div>
+</section>
 @endsection

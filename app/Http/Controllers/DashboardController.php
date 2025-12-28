@@ -32,6 +32,7 @@ public function index(Request $request)
     
     // Get recent transactions
     $recentTransactions = $virtualViewService->getRecentTransactions();
+    
 
     return view('dashboard', compact(
         'monthlySummary', 

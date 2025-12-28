@@ -91,20 +91,17 @@
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">取引明細表</h3>
-                    </div>                    
-                    <div class="card-body p-2">
+                    <div class="card-body p-0">
                         @if($transactions->count() > 0)
                             <div class="table-responsive">
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
-                                            <th style="width: 10%">日付</th>
-                                            <th style="width: 10%" >カ</th>
-                                            <th style="width: 10%" >タ</th>
+                                            <th style="width: 10%;">日付</th>
+                                            <th style="width: 20%;" class="d-none d-sm-table-cell">カテゴリー</th>
                                             <th >金額</th>
-                                            <th style="width:15%">#</th>
+                                            <th style="width: 10%;" class="d-none d-md-table-cell">タイプ</th>
+                                            <th style="width: 15%;">操作</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -113,20 +110,35 @@
                                             <td><span class="badge"> {{ $transaction->date->format('Y/m/d') }}</span>
                                                         
                                             </td>
-                                            <td > <span class="badge bg-dark">{{ $transaction->category->name }}</span> </td>
-                                            <td >
+                                            <td class="d-none d-sm-table-cell"> <span class="badge">{{ $transaction->category->name }}</span> </td>
+                                            <td class="font-weight-bold {{ $transaction->transaction_type->name === '収入' ? 'text-success' : 'text-danger' }}">
+                                                ¥{{ number_format($transaction->amount) }}
+                                            </td>
+                                            <td class="d-none d-md-table-cell">
                                                 {{-- Bootstrap Badge for Transaction Type --}}
                                                 <span class="badge {{ $transaction->transaction_type->name === '収入' ? 'bg-success' : 'bg-danger' }}">
                                                     {{ $transaction->transaction_type->name }}
                                                 </span>
-                                            </td>                                            
-                                            <td class="font-weight-bold">
-                                                ¥{{ number_format($transaction->amount) }}
                                             </td>
                                             <td>
-                                                <button type="button" class="btn btn-xs btn-default open-action-modal" data-toggle="modal" data-t_id="{{ $transaction->id }}" data-t_date="{{ $transaction->date->format('Y/m/d') }}" data-t_category="{{ $transaction->category->name }}" data-t_amount="{{ number_format($transaction->amount)}}" data-target="#modal-table-action">
-                                                    <i class="fa fa-wrench" aria-hidden="true"></i>
-                                                </button>
+                                                <div class="btn-group btn-group">
+                                                    <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-id="{{ $transaction->transaction_id }}" data-target="#modal-table-action">
+                                                        actions
+                                                    </button>
+                                                    <a href="{{ route('transactions.show', $transaction) }}" class="btn btn-info btn-sm" title="表示">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{{ route('transactions.edit', $transaction) }}" class="btn btn-warning btn-sm" title="編集">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form action="{{ route('transactions.destroy', $transaction) }}" method="POST" class="d-inline" onsubmit="return confirm('削除してもよろしいですか？')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger btn-sm" title="削除">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </td>
                                         </tr>
                                         @endforeach
@@ -158,7 +170,7 @@
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h4 class="modal-title" id="modal-title">Actions</h4>
+                  <h4 class="modal-title">Actions</h4>
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
@@ -175,38 +187,6 @@
         <!-- /.modal-dialog -->
         </div>
         <!-- /.modal -->
-        <!-- comment -->
-        
-        
     
 </section>
-@endsection
-
-@section('scripts')
-    <script>
-        document.addEventListener('click', function(e){
-            const btn = e.target.closest('.open-action-modal');
-            if(!btn) return;
-
-            const id = btn.dataset.t_id;
-            const title = `取引: ${btn.dataset.t_date} ${btn.dataset.t_category} ¥${btn.dataset.t_amount}`;
-
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-table-action-body').innerHTML = 
-            `
-            <a href="transactions/${id}" class="btn btn-info btn-sm" title="表示"><i class="fas fa-eye"></i> 表示</a>
-            <a href="transactions/${id}/edit" class="btn btn-warning btn-sm" title="編集"><i class="fas fa-edit"></i> 編集</a>
-            <form action="transactions/${id}/destroy" method="POST" class="d-inline" onsubmit="return confirm('削除してもよろしいですか？')">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-danger btn-sm" title="削除">
-                    <i class="fas fa-trash"></i> 削除
-                </button>
-            </form>            
-            `;
-
-            //new bootstrap.Modal('#modal-table-action').show();
-
-        });
-    </script>
 @endsection

@@ -56,7 +56,7 @@
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm">
                                                 {{-- 編集ボタン (黄色/Warning) --}}
-                                                <a href="{{ route('admin.categories.edit', $category) }}" class="btn btn-warning" title="編集">
+                                                <a href="{{ route('admin.categories.edit', $category) }}" class="btn btn-xs btn-warning" title="編集">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 
@@ -64,7 +64,7 @@
                                                 <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" class="d-inline" onsubmit="return confirm('本当に削除してもよろしいですか？')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger" title="削除">
+                                                    <button type="submit" class="btn btn-xs btn-danger" title="削除">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
