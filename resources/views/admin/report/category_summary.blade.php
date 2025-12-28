@@ -112,17 +112,16 @@
                         <table id="categorySummaryTable" class="table table-bordered table-striped">
                             <thead>
                                 <tr>
-                                    <th style="width: 25%">カテゴリー</th>
-                                    <th style="width: 15%">タイプ</th>
+                                    <th style="width: 25%">カ</th>
+                                    <th style="width: 15%">タ</th>
                                     <th class="text-right">取引件数</th>
                                     <th class="text-right">合計金額</th>
-                                    <th class="text-right">平均金額</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($categorySummary as $summary)
                                 <tr>
-                                    <td>{{ $summary->category_name }}</td>
+                                    <td><span class="badge bg-dark">{{ $summary->category_name }}</span></td>
                                     <td>
                                         @php
                                             // 取引区分 (type) に基づいてバッジの色を決定
@@ -136,13 +135,8 @@
                                     <td class="text-right">{{ number_format($summary->transaction_count) }} 件</td>
                                     
                                     {{-- 合計金額 (金額は色分け) --}}
-                                    <td class="text-right @if($summary->type === '収入') text-success @else text-danger @endif font-weight-bold">
+                                    <td class="text-right font-weight-bold">
                                         {{ number_format($summary->total_amount) }} 円
-                                    </td>
-                                    
-                                    {{-- 平均金額 --}}
-                                    <td class="text-right">
-                                        {{ number_format($summary->average_amount, 2) }} 円
                                     </td>
                                 </tr>
                                 @empty

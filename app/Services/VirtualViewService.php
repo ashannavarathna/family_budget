@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class VirtualViewService
@@ -274,9 +275,17 @@ class VirtualViewService
         }
         if ($startDate) {
             $query->where('transactions.date', '>=', $startDate);
+        }else{
+            // set to current month start date
+            //Carbon::now()->startOfMonth()->toDateString();
+            $query->where('date', '>=', Carbon::now()->startOfMonth()->toDateString());
         }
         if ($endDate) {
             $query->where('transactions.date', '<=', $endDate);
+        }else{
+            // set to curent month end date
+            //Carbon::now()->endOfMonth()->toDateString();
+            $query->where('date', '<=', Carbon::now()->endOfMonth()->toDateString());
         }
         if($transactionTypeId){
             $query->where('transactions.transaction_type_id', $transactionTypeId);
