@@ -52,7 +52,7 @@ class VirtualViewService
                 DB::raw('MAX(transactions.amount) as max_amount'),
                 DB::raw('MIN(transactions.amount) as min_amount')
             );
-            //->where('transactions.user_id', $userId);
+        //->where('transactions.user_id', $userId);
 
         if ($year) {
             $query->whereYear('transactions.date', $year);
@@ -62,8 +62,8 @@ class VirtualViewService
         }
 
         return $query->groupBy('transaction_types.name')
-                    ->orderBy('transaction_types.name')
-                    ->get();
+            ->orderBy('transaction_types.name')
+            ->get();
     }
 
     /**
@@ -114,12 +114,12 @@ class VirtualViewService
                           JOIN categories c2 ON t2.category_id = c2.id
                           JOIN transaction_types tt2 ON c2.transaction_type_id = tt2.id
                           WHERE t2.user_id = ? AND tt2.name = transaction_types.name'
-                         . ($year ? " AND strftime('%Y', t2.date) = $year" : '')
-                         . ($month ? " AND strftime('%m', t2.date) = $month" : '')
-                         . '), 2) as percentage')
+                    . ($year ? " AND strftime('%Y', t2.date) = $year" : '')
+                    . ($month ? " AND strftime('%m', t2.date) = $month" : '')
+                    . '), 2) as percentage')
             )
-            ->addBinding($userId, 'select'); 
-            //->where('transactions.user_id', $userId);
+            ->addBinding($userId, 'select');
+        //->where('transactions.user_id', $userId);
 
         if ($type) {
             $query->where('transaction_types.name', $type);
@@ -132,9 +132,9 @@ class VirtualViewService
         }
 
         return $query->groupBy('transaction_types.name', 'categories.name')
-                    ->orderBy('type')
-                    ->orderBy('total_amount', 'desc')
-                    ->get();
+            ->orderBy('type')
+            ->orderBy('total_amount', 'desc')
+            ->get();
     }
 
     /**
@@ -156,20 +156,20 @@ class VirtualViewService
                 'transaction_types.name as type',
                 DB::raw('SUM(transactions.amount) as total_amount')
             )
-            ->whereYear('transactions.date', $year)
-            ->groupBy(DB::raw("strftime('%Y', transactions.date), strftime('%m', transactions.date), transaction_types.name"))
-            ->orderBy('year')
-            ->orderBy('month')
-            ->orderBy('type');
+                ->whereYear('transactions.date', $year)
+                ->groupBy(DB::raw("strftime('%Y', transactions.date), strftime('%m', transactions.date), transaction_types.name"))
+                ->orderBy('year')
+                ->orderBy('month')
+                ->orderBy('type');
         } elseif ($period === 'yearly') {
             $query->select(
                 DB::raw("strftime('%Y', transactions.date) as year"),
                 'transaction_types.name as type',
                 DB::raw('SUM(transactions.amount) as total_amount')
             )
-            ->groupBy(DB::raw("strftime('%Y', transactions.date), transaction_types.name"))
-            ->orderBy('year', 'desc')
-            ->orderBy('type');
+                ->groupBy(DB::raw("strftime('%Y', transactions.date), transaction_types.name"))
+                ->orderBy('year', 'desc')
+                ->orderBy('type');
         } elseif ($period === 'quarterly') {
             $query->select(
                 DB::raw("strftime('%Y', transactions.date) as year"),
@@ -177,11 +177,11 @@ class VirtualViewService
                 'transaction_types.name as type',
                 DB::raw('SUM(transactions.amount) as total_amount')
             )
-            ->whereYear('transactions.date', $year)
-            ->groupBy(DB::raw("strftime('%Y', transactions.date), ((cast(strftime('%m', transactions.date) as integer)-1)/3+1), transaction_types.name"))
-            ->orderBy('year')
-            ->orderBy('quarter')
-            ->orderBy('type');
+                ->whereYear('transactions.date', $year)
+                ->groupBy(DB::raw("strftime('%Y', transactions.date), ((cast(strftime('%m', transactions.date) as integer)-1)/3+1), transaction_types.name"))
+                ->orderBy('year')
+                ->orderBy('quarter')
+                ->orderBy('type');
         }
 
         return $query->get();
@@ -226,16 +226,16 @@ class VirtualViewService
 
         $result = [];
         $types = ['収入', '支出'];
-        
+
         foreach ($types as $type) {
             $current = $currentYearData->get($type);
             $previous = $previousYearData->get($type);
-            
+
             $currentTotal = $current ? $current->current_year_total : 0;
             $previousTotal = $previous ? $previous->previous_year_total : 0;
-            
-            $growth = $previousTotal != 0 ? 
-                (($currentTotal - $previousTotal) / $previousTotal) * 100 : 
+
+            $growth = $previousTotal != 0 ?
+                (($currentTotal - $previousTotal) / $previousTotal) * 100 :
                 ($currentTotal > 0 ? 100 : 0);
 
             $result[] = [
@@ -270,27 +270,27 @@ class VirtualViewService
                 DB::raw('AVG(transactions.amount) as average_amount')
             );
 
-        if($userId){
+        if ($userId) {
             $query->where('transactions.user_id', $userId);
         }
         if ($startDate) {
             $query->where('transactions.date', '>=', $startDate);
-        }else{
+        } else {
             // set to current month start date
             //Carbon::now()->startOfMonth()->toDateString();
             $query->where('date', '>=', Carbon::now()->startOfMonth()->toDateString());
         }
         if ($endDate) {
             $query->where('transactions.date', '<=', $endDate);
-        }else{
+        } else {
             // set to curent month end date
             //Carbon::now()->endOfMonth()->toDateString();
             $query->where('date', '<=', Carbon::now()->endOfMonth()->toDateString());
         }
-        if($transactionTypeId){
+        if ($transactionTypeId) {
             $query->where('transactions.transaction_type_id', $transactionTypeId);
         }
-        if($categoryId){
+        if ($categoryId) {
             $query->where('transactions.category_id', $categoryId);
         }
 
@@ -361,5 +361,46 @@ class VirtualViewService
             ->whereBetween('transactions.date', [$startDate, $endDate])
             ->orderBy('transactions.date', 'desc')
             ->get();
+    }
+
+    public function getCategorySummaryForCurrentMonth(
+        $userId = null,
+        $startDate = null,
+        $endDate = null,
+        $transactionTypeId = null,
+        $categoryId = null
+
+    ) {
+
+        $query = DB::table('transactions')
+            ->join('categories', 'transactions.category_id', '=', 'categories.id')
+            ->join('transaction_types', 'categories.transaction_type_id', '=', 'transaction_types.id')
+            ->select(
+                'categories.name as category_name',
+                DB::raw('SUM(transactions.amount) as total')
+            );
+
+        if ($userId) {
+            $query->where('transactions.user_id', $userId);
+        }
+
+        $query->whereBetween('transactions.date', [
+            $startDate ?? Carbon::now()->startOfMonth()->toDateString(),
+            $endDate ?? Carbon::now()->endOfMonth()->toDateString(),
+        ]);
+
+        if ($transactionTypeId) {
+            $query->where('categories.transaction_type_id', $transactionTypeId);
+        }
+
+        if ($categoryId) {
+            $query->where('transactions.category_id', $categoryId);
+        }
+
+        return $query
+            ->groupBy('categories.name')
+            ->orderByDesc('total')
+            ->get();
+
     }
 }

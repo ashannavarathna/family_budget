@@ -86,4 +86,11 @@ class ReportController extends Controller
             'users'              // 👈 追加：ユーザーフィルター用
         ));
     }
+
+    public function getCategorySummaryForCrntMonth(){
+        $request = request();
+        $transaction_type_id = $request->input('transaction_type_id');
+        //dd($this->viewService->getCategorySummaryForCurrentMonth(null, null, null,$transaction_type_id, null));
+        return $this->viewService->getCategorySummaryForCurrentMonth(null, null, null,$transaction_type_id, null);
+    }
 }
