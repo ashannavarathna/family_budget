@@ -29,6 +29,8 @@
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/daterangepicker/daterangepicker.css')}}">
     <!-- summernote -->
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/summernote/summernote-bs4.min.css')}}">
+
+    @yield('styles')
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
