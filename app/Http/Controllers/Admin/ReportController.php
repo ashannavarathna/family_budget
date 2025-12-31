@@ -87,10 +87,8 @@ class ReportController extends Controller
         ));
     }
 
-    public function getCategorySummaryForCrntMonth(){
-        $request = request();
-        $transaction_type_id = $request->input('transaction_type_id');
-        //dd($this->viewService->getCategorySummaryForCurrentMonth(null, null, null,$transaction_type_id, null));
-        return $this->viewService->getCategorySummaryForCurrentMonth(null, null, null,$transaction_type_id, null);
+    public function currentMonthSummary(){
+        $curret_month_summary = $this->viewService->getCurrentMonthSummary();
+        return  $curret_month_summary;
     }
 }

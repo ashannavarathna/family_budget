@@ -363,44 +363,61 @@ class VirtualViewService
             ->get();
     }
 
-    public function getCategorySummaryForCurrentMonth(
-        $userId = null,
-        $startDate = null,
-        $endDate = null,
-        $transactionTypeId = null,
-        $categoryId = null
+    public function getCurrentMonthSummary() {
 
-    ) {
+        $startDate = Carbon::now()->startOfMonth();
+        $endDate = Carbon::now()->endOfMonth();
 
-        $query = DB::table('transactions')
+        //==========================
+        // TOTAL (INCOME / EXPENSE)
+        //==========================
+        $totals = DB::table('transactions')
             ->join('categories', 'transactions.category_id', '=', 'categories.id')
             ->join('transaction_types', 'categories.transaction_type_id', '=', 'transaction_types.id')
             ->select(
-                'categories.name as category_name',
+                'transaction_types.name as type',
                 DB::raw('SUM(transactions.amount) as total')
-            );
+            )
+            ->whereBetween('transactions.date', [$startDate, $endDate])
+            ->groupBy('transaction_types.name')
+            ->pluck('total', 'type');
 
-        if ($userId) {
-            $query->where('transactions.user_id', $userId);
-        }
-
-        $query->whereBetween('transactions.date', [
-            $startDate ?? Carbon::now()->startOfMonth()->toDateString(),
-            $endDate ?? Carbon::now()->endOfMonth()->toDateString(),
-        ]);
-
-        if ($transactionTypeId) {
-            $query->where('categories.transaction_type_id', $transactionTypeId);
-        }
-
-        if ($categoryId) {
-            $query->where('transactions.category_id', $categoryId);
-        }
-
-        return $query
-            ->groupBy('categories.name')
+        //==========================
+        // TOTAL BY CATEGORIES
+        //==========================
+        $categories = DB::table('transactions')
+            ->join('categories', 'transactions.category_id', '=', 'categories.id')
+            ->join('transaction_types', 'categories.transaction_type_id', '=', 'transaction_types.id')
+            ->select(
+                'categories.name as category',
+                'transaction_types.name as type',
+                DB::raw('SUM(transactions.amount) as total')
+            )    
+            ->whereBetween('transactions.date', [$startDate, $endDate])
+            ->groupBy('categories.name', 'transaction_types.name')
             ->orderByDesc('total')
             ->get();
 
+        //==========================
+        // RESPONSE
+        //==========================
+
+        return [
+            'headers' => [
+                'year' => $startDate->year,
+                'month' => $startDate->format('m'),
+                'month_label' => $startDate->format('Y-m'),
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'totals' => [
+                    'income' => $totals['収入'] ?? 0,
+                    'expense' => $totals['支出'] ?? 0
+                ]
+            ],
+            'categories' => [
+                'income' => $categories->where('type', '収入')->values(),
+                'expense' => $categories->where('type', '支出')->values()
+            ]
+        ];
     }
 }

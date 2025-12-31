@@ -79,6 +79,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // 👇 ここに新しいレポートルートを追加します
     Route::get('/reports/monthly-summary', 'Admin\ReportController@monthlySummary')->name('reports.monthly-summary');
     Route::get('/reports/category-summary', 'Admin\ReportController@categorySummary')->name('reports.category-summary');
-    Route::get('/reports/category-summary-crnt-month', 'Admin\ReportController@getCategorySummaryForCrntMonth')->name('reports.category-summary-crnt-month');
+    Route::get('/reports/current-month-summary', 'Admin\ReportController@currentMonthSummary')->name('reports.current-month-summary');
 
 });

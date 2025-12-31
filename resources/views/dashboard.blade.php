@@ -8,6 +8,13 @@
         border-bottom: 1px solid #ccc;
     }
 
+    .category-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
 </style>
 @endsection
 
@@ -26,23 +33,23 @@
                 <div class="card">
                     <div class="card-header text-center">
                         <!-- h3 class="card-title">カテゴリ別支出</h3 -->
-                        <h5 class="mb-1">2021年2月</h5>
-                        <small>(2月1日〜2月28日)</small>
+                        <h5 class="mb-1" id="header-month-label">2021年2月</h5>
+                        <small id="header-month-range">(2月1日〜2月28日)</small>
                     </div>
                     <div class="card-body text-center">
                         <!-- Total Summary -->
                         <div class="row mb-3 py-2 row-bordered">
                             <div class="col-4">
                                 <div class="text-muted">収入</div>
-                                <strong>¥24,928</strong>
+                                <strong id="header-total-income">¥24,928</strong>
                             </div>
                             <div class="col-4">
                                 <div class="text-muted">支出</div>
-                                <strong>¥10,066</strong>
+                                <strong id="header-total-expense">¥10,066</strong>
                             </div>
                             <div class="col-4">
                                 <div class="text-muted">収支</div>
-                                <strong class="text-success">¥14,862</strong>
+                                <strong id="header-month-balance">¥14,862</strong>
                             </div>
                         </div>
                         <!-- Draw chart -->
@@ -56,7 +63,7 @@
 
                         <div class="row">
                             <div class="col-12">
-                                <div class="list-group list-group-flush">
+                                <div class="list-group list-group-flush" id="expense-list">
 
                                     <div class="list-group-item d-flex justify-content-between align-items-center">
                                         <div>
@@ -153,6 +160,58 @@
 
 <script>
     let categoryChart;
+
+    /* ======================
+        init headers
+    ====================== */
+    function initHeaders(headers){
+        console.log(headers);
+
+        const s_date = new Date(headers.start_date);
+        const e_date = new Date(headers.end_date);
+
+        $monthLableElem = document.getElementById('header-month-label');
+        $monthRangeElem = document.getElementById('header-month-range');
+        $totalIncomeElem = document.getElementById('header-total-income');
+        $totalExpenseElem = document.getElementById('header-total-expense');
+        $monthBlanceElem = document.getElementById('header-month-balance');
+
+        $monthLableElem.textContent = `${headers.year}年${headers.month}月`;
+        $monthRangeElem.textContent = `(${s_date.getUTCMonth() + 1}月${s_date.getUTCDate()}日~${e_date.getUTCMonth() + 1}月${e_date.getUTCDate()}日)`;
+        $totalIncomeElem.textContent = `¥${headers.totals.income}`;
+        $totalExpenseElem.textContent = `¥${headers.totals.expense}`;
+        $monthBlanceElem.textContent = `¥${(headers.totals.income - headers.totals.expense)}`;
+    }
+
+    /* ======================
+        Generate category list
+    ====================== */
+    function renderCategoryList(categories, containerId) {
+        const categoryColors = [
+            '#e74c3c','#f1948a','#bb8fce',
+            '#7fb3d5','#48c9b0','#f7dc6f',
+            '#5dade2','#af7ac5','#d2b4de'
+        ];    
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        categories.forEach((item, index) => {
+            const color = categoryColors[index % categoryColors.length];
+
+            const row = document.createElement('div');
+            row.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+            row.innerHTML = `
+            <div class="d-flex align-items-center">
+                <span class="category-dot mr-2" style="background:${color}"></span>
+                ${item.category}
+            </div>
+            <strong>¥${Number(item.total).toLocaleString()}</strong>
+            `;
+
+            container.appendChild(row);
+        });
+    }
 
     /* ======================
        Center Text Plugin
@@ -289,11 +348,18 @@
     document.addEventListener('DOMContentLoaded', loadChart);
 
     function loadChart() {
-        fetch('{{ route("admin.reports.category-summary-crnt-month") }}?transaction_type_id=2')
+        fetch('{{ route("admin.reports.current-month-summary") }}')
             .then(res => res.json())
             .then(data => {
-                const labels = data.map(i => i.category_name);
-                const values = data.map(i => Number(i.total));
+                // adding totals
+                initHeaders(data.headers);
+
+                // gen category list
+                renderCategoryList(data.categories.expense, 'expense-list');
+
+                // drawing chart for expense
+                const labels = data.categories.expense.map(i => i.category);
+                const values = data.categories.expense.map(i => Number(i.total));
                 renderChart(labels, values);
             });
     }
@@ -330,10 +396,10 @@
                         , left: 40
                         , right: 40
                     } : {
-                        top: 10
-                        , bottom: 10
-                        , left: 10
-                        , right: 10
+                        top: 20
+                        , bottom: 20
+                        , left: 20
+                        , right: 20
                     }
                 }
                 , plugins: {
