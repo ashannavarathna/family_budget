@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Admin\AccountPeriodController;
 use App\Http\Controllers\admin\TransactionTypeController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 
@@ -80,5 +81,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/reports/monthly-summary', 'Admin\ReportController@monthlySummary')->name('reports.monthly-summary');
     Route::get('/reports/category-summary', 'Admin\ReportController@categorySummary')->name('reports.category-summary');
     Route::get('/reports/current-month-summary', 'Admin\ReportController@currentMonthSummary')->name('reports.current-month-summary');
+    Route::get('/reports/yearly-summary', 'Admin\ReportController@yearlySummary')->name('reports.yearly-summary');
+
+    Route::get('/account-close', [AccountPeriodController::class, 'index'])->name('account-close');
+    Route::get('/account/close', [AccountPeriodController::class, 'closePreview'])->name('account.close.preview');
+    Route::post('/account/close', [AccountPeriodController::class, 'closeConfirm'])->name('account.close.confirm');
 
 });

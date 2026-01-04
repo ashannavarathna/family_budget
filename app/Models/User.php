@@ -25,6 +25,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * 
  * @property Role|null $role
  * @property Collection|Transaction[] $transactions
+ * @property Collection|AccountPeriod[] $account_periods
  *
  * @package App\Models
  */
@@ -72,6 +73,12 @@ class User extends Authenticatable
 	{
 		return $this->hasMany(Transaction::class, 'created_by');
 	}
+
+	public function accountPeriods()
+	{
+		return $this->hasMany(AccountPeriod::class, 'created_by');
+	}
+
 
     public function isAdmin()
     {

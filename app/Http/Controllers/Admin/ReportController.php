@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use App\Models\Category;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\TransactionType;
 use App\Http\Controllers\Controller;
@@ -22,13 +23,28 @@ class ReportController extends Controller
     /**
      * 月間サマリーレポートを表示
      */
-    public function monthlySummary()
+    public function monthlySummary(Request $request)
     {
+
+        // Current year from request or default to current year
+        $year = (int) $request->get('year', Carbon::now()->year);
+
+        $prevYear = $year - 1;
+        $nextYear = $year + 1;
+
         // サービスからデータを取得
-        $monthlySummary = $this->viewService->getMonthlySummary(); 
+        $monthlySummary = $this->viewService->getMonthlySummary(null, $year); 
         
         // 'admin/report/monthly_summary.blade.php' にデータを渡して返す
-        return view('admin.report.monthly_summary', compact('monthlySummary'));
+        return view('admin.report.monthly_summary', compact('monthlySummary', 'year', 'prevYear', 'nextYear'));
+    }
+
+    public function yearlySummary(Request $request){
+        $year = (int) $request->get('year', Carbon::now()->year);
+
+        $summary = $this->viewService->getYearlySummaryByAccountPeriods($year);
+
+        return view('admin.report.year-summary', compact('summary'));
     }
 
     /**
@@ -67,7 +83,7 @@ class ReportController extends Controller
         // 注: VirtualViewService の getCategorySummary メソッドも、これらの引数を受け入れるように更新する必要があります。
         // 今回は、以前提供されたメソッドシグネチャ (userId, startDate, endDate) に合わせて呼び出しを調整します。
         
-        $categorySummary = $this->viewService->getCategorySummary(
+        $categoryData = $this->viewService->getCategorySummary(
             $userId,
             $startDate,
             $endDate,
@@ -75,12 +91,13 @@ class ReportController extends Controller
             $categoryId
         ); 
 
+        $data = collect($categoryData);
 
         // ----------------------------------------------------
         // 3. ビューへデータを渡す
         // ----------------------------------------------------
         return view('admin.report.category_summary', compact(
-            'categorySummary', 
+            'data', 
             'transactionTypes',  // 👈 追加：Undefined variable エラーを解決
             'categoriesList',    // 👈 追加：カテゴリーフィルター用
             'users'              // 👈 追加：ユーザーフィルター用
@@ -88,7 +105,9 @@ class ReportController extends Controller
     }
 
     public function currentMonthSummary(){
-        $curret_month_summary = $this->viewService->getCurrentMonthSummary();
-        return  $curret_month_summary;
+        $offsetMonth = request()->get('offset-month', 0);
+        //dd($offsetMonth);
+        $curretMonthSummary = $this->viewService->getCurrentMonthSummary($offsetMonth);
+        return  response()->json($curretMonthSummary);
     }
 }

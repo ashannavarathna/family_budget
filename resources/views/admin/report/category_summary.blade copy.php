@@ -8,7 +8,7 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-12">
-                <h1>カテゴリー別サマリー</h1>
+                <h1>取引カテゴリー別サマリーレポート</h1>
             </div>
         </div>
     </div></section>
@@ -139,32 +139,43 @@
                         </div>
                     </div> 
                     <div class="card-body">
-                        <div class="row g-3">
-                            @foreach($data['categorySummary'] as $summary)
-                                <div class="col-sm-6 col-md-4 col-lg-3">
-                                    <div class="card shadow-sm p-2 h-100  border-bottom border-2">
-                                        <div class="card-body p-2">
-
-                                            <!-- First Line: Category / Item Count -->
-                                            <div class="d-flex justify-content-between mb-1">
-                                                <span class="badge bg-dark">{{ $summary->category_name }}</span>
-                                                <span class="badge bg-secondary">件数: {{ $summary->transaction_count }}</span>
-                                            </div>
-
-                                            <!-- Second Line: Type / Amount -->
-                                            <div class="d-flex justify-content-between">
-                                                <span class="badge badge-xs {{ $summary->type === '収入' ? 'bg-success' : 'bg-danger' }}">
-                                                    {{ $summary->type }}
-                                                </span>
-                                                <span class="fw-bold badge badge-warning">¥{{ number_format($summary->total_amount) }}</span>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-
+                        <table id="categorySummaryTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%">カ</th>
+                                    <th style="width: 15%">タ</th>
+                                    <th class="text-right">件数</th>
+                                    <th class="text-right">金額</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($data['categorySummary'] as $summary)
+                                <tr>
+                                    <td><span class="badge bg-dark">{{ $summary->category_name }}</span></td>
+                                    <td>
+                                        @php
+                                            // 取引区分 (type) に基づいてバッジの色を決定
+                                            $badgeClass = ($summary->type === '収入') ? 'bg-success' : 'bg-danger';
+                                        @endphp
+                                        <span class="badge {{ $badgeClass }}">
+                                            {{ $summary->type }}
+                                        </span>
+                                    </td>
+                                    {{-- 取引件数 --}}
+                                    <td class="text-right">{{ number_format($summary->transaction_count) }} 件</td>
+                                    
+                                    {{-- 合計金額 (金額は色分け) --}}
+                                    <td class="text-right font-weight-bold">
+                                        {{ number_format($summary->total_amount) }} 円
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="text-center">データがありません。取引を登録してください。</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                     </div>
                 </div>

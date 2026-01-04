@@ -92,8 +92,35 @@
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">取引明細表</h3>
-                    </div>                    
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                            <div>
+                                <h3 class="card-title text-xs text-uppercase text-muted" style="font-size: 1.25rem;">
+                                    <i class="fas fa-exchange-alt mr-1"></i> 取引 (Transactions)
+                                </h3>
+                                <br>
+                                <small class="text-muted">
+                                    {{ $dateFrom ?? 'Start' }} 〜 {{ $dateTo ?? 'End' }}
+                                </small>
+                            </div>
+
+                            <div class="d-flex text-center mt-3 mt-md-0">
+                                <div class="px-3 border-right">
+                                    <div class="text-xs text-uppercase text-muted">収入 (Income)</div>
+                                    <span class="text-success font-weight-bold">¥{{ number_format($totals->total_income ?? 0) }}</span>
+                                </div>
+                                <div class="px-3 border-right">
+                                    <div class="text-xs text-uppercase text-muted">支出 (Expense)</div>
+                                    <span class="text-danger font-weight-bold">¥{{ number_format($totals->total_expense ?? 0) }}</span>
+                                </div>
+                                <div class="px-3">
+                                    <div class="text-xs text-uppercase text-muted">収支 (Net Amount)</div>
+                                    <span class="text-primary font-weight-bold">
+                                        ¥{{ number_format(($totals->total_income ?? 0) - ($totals->total_expense ?? 0)) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                   
                     <div class="card-body p-2">
                         @if($transactions->count() > 0)
                             <div class="table-responsive">

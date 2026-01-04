@@ -14,7 +14,7 @@ class VirtualViewService
     {
         $userId = $userId ?: auth()->id();
         $year = $year ?: date('Y');
-
+        
         return DB::table('transactions')
             ->join('categories', 'transactions.category_id', '=', 'categories.id')
             ->join('transaction_types', 'categories.transaction_type_id', '=', 'transaction_types.id')
@@ -32,6 +32,7 @@ class VirtualViewService
             ->orderBy('year')
             ->orderBy('month')
             ->get();
+
     }
 
     /**
@@ -267,26 +268,23 @@ class VirtualViewService
                 'transaction_types.name as type',
                 DB::raw('COUNT(transactions.id) as transaction_count'),
                 DB::raw('SUM(transactions.amount) as total_amount'),
-                DB::raw('AVG(transactions.amount) as average_amount')
             );
 
         if ($userId) {
             $query->where('transactions.user_id', $userId);
         }
-        if ($startDate) {
-            $query->where('transactions.date', '>=', $startDate);
-        } else {
-            // set to current month start date
-            //Carbon::now()->startOfMonth()->toDateString();
-            $query->where('date', '>=', Carbon::now()->startOfMonth()->toDateString());
-        }
-        if ($endDate) {
-            $query->where('transactions.date', '<=', $endDate);
-        } else {
-            // set to curent month end date
-            //Carbon::now()->endOfMonth()->toDateString();
-            $query->where('date', '<=', Carbon::now()->endOfMonth()->toDateString());
-        }
+        
+        $startDate = $startDate
+            ? Carbon::parse($startDate)->startOfDay()
+            : VirtualViewService::getAccountPeriod(0)['periodStart']->copy()->startOfDay();
+
+        $endDate = $endDate
+            ? Carbon::parse($endDate)->endOfDay()
+            : VirtualViewService::getAccountPeriod(0)['periodEnd']->copy()->endOfDay();
+
+        $query->whereBetween('date', [$startDate, $endDate]);            
+
+
         if ($transactionTypeId) {
             $query->where('transactions.transaction_type_id', $transactionTypeId);
         }
@@ -294,7 +292,31 @@ class VirtualViewService
             $query->where('transactions.category_id', $categoryId);
         }
 
-        return $query->groupBy('categories.name', 'transaction_types.name')->get();
+        /* ---------- CATEGORY TOTALS ---------- */
+        $categorySummary = (clone $query)
+            ->groupBy('categories.name', 'transaction_types.name')
+            ->orderBy('transaction_types.name') 
+            ->orderByDesc('total_amount')
+            ->get();
+
+        /* ---------- SUB TOTALS (income / expense) ---------- */
+        $typeTotals = (clone $query)
+            ->select(
+                'transaction_types.name as type',
+                DB::raw('SUM(transactions.amount) as total')
+            )
+            ->groupBy('transaction_types.name')
+            ->pluck('total', 'type');        
+
+        return [
+            'categorySummary' => $categorySummary,
+            'dateFrom' => $startDate->toDateString(),
+            'dateTo' => $endDate->toDateString(),
+            'totals' =>[
+                'totalIncome'  => (int) ($typeTotals['収入'] ?? 0),
+                'totalExpense' => (int) ($typeTotals['支出'] ?? 0),
+            ]
+        ];
     }
 
     /**
@@ -363,10 +385,11 @@ class VirtualViewService
             ->get();
     }
 
-    public function getCurrentMonthSummary() {
-
-        $startDate = Carbon::now()->startOfMonth();
-        $endDate = Carbon::now()->endOfMonth();
+    public function getCurrentMonthSummary(int $offsetMonth = 0) {
+        $accountPeriod = VirtualViewService::getAccountPeriod($offsetMonth);
+        $startDate = $accountPeriod['periodStart']->startOfDay();
+        $endDate = $accountPeriod['periodEnd']->endOfDay();
+        $baseDate = $accountPeriod['baseDate'];
 
         //==========================
         // TOTAL (INCOME / EXPENSE)
@@ -374,29 +397,29 @@ class VirtualViewService
         $totals = DB::table('transactions')
             ->join('categories', 'transactions.category_id', '=', 'categories.id')
             ->join('transaction_types', 'categories.transaction_type_id', '=', 'transaction_types.id')
+            ->whereBetween('transactions.date', [$startDate, $endDate])
             ->select(
+                'categories.name as category',
                 'transaction_types.name as type',
                 DB::raw('SUM(transactions.amount) as total')
             )
-            ->whereBetween('transactions.date', [$startDate, $endDate])
             ->groupBy('transaction_types.name')
-            ->pluck('total', 'type');
+            ->pluck(DB::raw('total'), 'type');
 
         //==========================
         // TOTAL BY CATEGORIES
         //==========================
         $categories = DB::table('transactions')
             ->join('categories', 'transactions.category_id', '=', 'categories.id')
-            ->join('transaction_types', 'categories.transaction_type_id', '=', 'transaction_types.id')
-            ->select(
+            ->join('transaction_types', 'categories.transaction_type_id', '=', 'transaction_types.id')  
+            ->whereBetween('transactions.date', [$startDate, $endDate])
+            ->groupBy('categories.name', 'transaction_types.name')
+            ->orderByDesc(DB::raw('SUM(transactions.amount)'))
+            ->get([
                 'categories.name as category',
                 'transaction_types.name as type',
                 DB::raw('SUM(transactions.amount) as total')
-            )    
-            ->whereBetween('transactions.date', [$startDate, $endDate])
-            ->groupBy('categories.name', 'transaction_types.name')
-            ->orderByDesc('total')
-            ->get();
+            ]);
 
         //==========================
         // RESPONSE
@@ -404,14 +427,13 @@ class VirtualViewService
 
         return [
             'headers' => [
-                'year' => $startDate->year,
-                'month' => $startDate->format('m'),
-                'month_label' => $startDate->format('Y-m'),
-                'start_date' => $startDate,
-                'end_date' => $endDate,
+                'year' => $baseDate->year,
+                'month' => $baseDate->month,
+                'month_label' => $baseDate->format('Y年m月'),
+                'range_label' => $startDate->format('n月j日') . '〜' . $endDate->format('n月j日'),
                 'totals' => [
-                    'income' => $totals['収入'] ?? 0,
-                    'expense' => $totals['支出'] ?? 0
+                    'income' => (int) ($totals['収入'] ?? 0),
+                    'expense' => (int) ($totals['支出'] ?? 0)
                 ]
             ],
             'categories' => [
@@ -420,4 +442,100 @@ class VirtualViewService
             ]
         ];
     }
+
+    public function getYearlySummaryByAccountPeriods(int $year){
+        $cutOffDay = config('constants.account_cutoff_day');
+        $periods = [];
+
+        for($month = 1; $month <= 12; $month++){
+            // Accounting month base date
+            $baseDate = Carbon::create($year, $month, $cutOffDay);
+
+            $periodEnd = $baseDate->copy();
+            $periodStart = $baseDate->copy()->subMonth()->addDay();
+            
+            $periods[] = [
+                'year' => $year,
+                'month' => $month,
+                'periodStart' => $periodStart->startOfDay(),
+                'periodEnd' => $periodEnd->endOfDay(),
+                'range_label' => $periodStart->format('n/j') . ' ~ ' . $periodEnd->format('n/j')
+            ];
+        }
+
+        $monthlySummary = [];
+
+        foreach($periods as $period){
+
+            $count = DB::table('transactions')
+                ->whereBetween('transactions.date', [$period['periodStart'], $period['periodEnd']])
+                ->count();
+
+            if ($count === 0) {
+                continue; // skip this loop iteration
+            }
+
+            $totals = DB::table('transactions')
+                ->join('categories', 'transactions.category_id', '=', 'categories.id')
+                ->join('transaction_types', 'categories.transaction_type_id', '=', 'transaction_types.id')
+                ->selectRaw('
+                    COALESCE(SUM(CASE WHEN transaction_types.name = "収入" THEN transactions.amount ELSE 0 END),0) as total_income,
+                    COALESCE(SUM(CASE WHEN transaction_types.name = "支出" THEN transactions.amount ELSE 0 END),0) as total_expense
+                ')
+                ->whereBetween('transactions.date', [$period['periodStart'], $period['periodEnd']])
+                ->first();
+
+            //get opening balance for current period
+            $periodOpeningBlance = DB::table('account_periods')
+                ->where('period_year', '=', $period['year'])
+                ->where('period_month', '=', $period['month'])
+                ->value('opening_balance') ?? 0;
+            
+
+            $monthlySummary[] = [
+                'month'          => $period['month'],
+                'range'          => $period['range_label'],
+                'carryForward'   => $periodOpeningBlance,
+                'totalIncome'    => $totals->total_income,
+                'totalExpense'   => $totals->total_expense,
+                'balance'        => (($periodOpeningBlance + $totals->total_income) - $totals->total_expense),
+            ];
+
+        }
+
+        return [
+            'year'      => $year,
+            'prevYear'  => $year - 1,
+            'nextYear'  => $year + 1,
+            'monthlySummary' => $monthlySummary,
+        ];
+
+       
+
+    }
+
+    public static function getAccountPeriod($offsetMonth = 0){
+        $baseDate = Carbon::today()->addMonths($offsetMonth);
+        $cutoffDay = config('constants.account_cutoff_day');
+
+        if ($baseDate->day <= $cutoffDay) {
+            $periodEnd = $baseDate->copy()->day($cutoffDay);
+            $periodStart = $periodEnd->copy()->subMonth()->addDay();
+        } else {
+            $periodEnd = $baseDate->copy()->addMonth()->day($cutoffDay);
+            $periodStart = $baseDate->copy()->day($cutoffDay)->addDay();
+        }
+        
+        return [
+            'baseDate' => $baseDate, 
+            'periodStart' => $periodStart, 
+            'periodEnd' => $periodEnd,
+            'year' => $baseDate->year,
+            'month' => $baseDate->month,
+            'month_label' => $baseDate->format('Y年m月'),
+            'range_label' => $periodStart->startOfDay()->format('n月j日') . '〜' . $periodEnd->endOfDay()->format('n月j日'),
+        ];
+    }
+
+    
 }

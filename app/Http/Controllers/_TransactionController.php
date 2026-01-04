@@ -35,60 +35,33 @@ class TransactionController extends Controller
         }
 
         // Filter by date range
- /*        if ($request->has('start_date') && $request->start_date != '') {
+        if ($request->has('start_date') && $request->start_date != '') {
             $query->where('date', '>=', $request->start_date);
         }else{
-            // set to current account period start date
+            // set to current month start date
+            //Carbon::now()->startOfMonth()->toDateString();
             $query->where('date', '>=', VirtualViewService::getAccountPeriod(0)['periodStart']->startOfDay()->toDateString());
         }
 
         if ($request->has('end_date') && $request->end_date != '') {
             $query->where('date', '<=', $request->end_date);
         }else{
-            // set to curent account period end date
+            // set to curent month end date
+            //Carbon::now()->endOfMonth()->toDateString();
             $query->where('date', '<=', VirtualViewService::getAccountPeriod(0)['periodEnd']->startOfDay()->toDateString());
-        } */
+        }
 
-        // Date Filtering Logic
-        /*         NEVER use toDateString() for filtering DATETIME columns
-        $startDate = $request->input('start_date') ?: VirtualViewService::getAccountPeriod(0)['periodStart']->startOfDay()->toDateString();
-        $endDate = $request->input('end_date') ?: VirtualViewService::getAccountPeriod(0)['periodEnd']->endOfDay()->toDateString();
-        $query->where('date', '>=', $startDate)->where('date', '<=', $endDate); */
+        //$transactions = $query->latest()->paginate(10);
+        //listing by desc with date column
 
-        $startDate = $request->filled('start_date')
-            ? Carbon::parse($request->start_date)->startOfDay()
-            : VirtualViewService::getAccountPeriod(0)['periodStart']->copy()->startOfDay();
-
-        $endDate = $request->filled('end_date')
-            ? Carbon::parse($request->end_date)->endOfDay()
-            : VirtualViewService::getAccountPeriod(0)['periodEnd']->copy()->endOfDay();
-
-        $query->whereBetween('date', [$startDate, $endDate]);        
-
-        //--- CALCULATE TOTALS BEFORE PAGINATION ---
-        // clone the query
-        $qry = clone $query;
-
-        // Use SQL sum with case statements to get both totals in one database hit
-        $totals = $qry->selectRaw(
-            "
-            SUM(CASE WHEN transaction_types.name = '収入' THEN amount ELSE 0 END) as total_income,
-            SUM(CASE WHEN transaction_types.name = '支出' THEN amount ELSE 0 END) as total_expense
-            "
-        )
-        // Join is necessary here to check the transaction_type name for the sum
-        ->join('transaction_types', 'transactions.transaction_type_id', '=', 'transaction_types.id')
-        ->first();    
+        
 
         $transactions = $query->orderBy('date', 'desc')->paginate(10)->appends(request()->query());
 
         $categories = Category::with('transaction_type')->get();
         $transactionTypes = TransactionType::all();
 
-        $dateFrom = $startDate->toDateString();
-        $dateTo = $endDate->toDateString();
-
-        return view('transactions.index', compact('transactions', 'categories', 'transactionTypes', 'dateFrom', 'dateTo', 'totals'));
+        return view('transactions.index', compact('transactions', 'categories', 'transactionTypes'));
     }
 
     /**

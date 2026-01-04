@@ -17,21 +17,20 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-
-                {{-- Card for the Report Table --}}
+                {{-- Card for  the Report Table --}}
                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex align-items-center justify-content-between">
                             <!-- Previous month -->
-                            <a href="{{ route('admin.reports.monthly-summary', ['year' => $prevYear]) }}" id="btn-prev-year" class="btn btn-sm btn-light" aria-label="前月">
+                            <a href="{{ route('admin.reports.yearly-summary', ['year' => $summary['prevYear'] ]) }}" id="btn-prev-year" class="btn btn-sm btn-light" aria-label="前月">
                                 <i class="fas fa-chevron-left"></i>
                             </a>                              
                             <!-- Month label -->
                             <div>
-                                <h5 class="mb-0" id="h-month-label">{{ $year }}年</h5>
+                                <h5 class="mb-0" id="h-month-label">{{ $summary['year'] }}年</h5>
                             </div>
                             <!-- Next month -->
-                            <a href="{{ route('admin.reports.monthly-summary', ['year' => $nextYear]) }}" id="btn-next-year" class="btn btn-sm btn-light"aria-label="翌月">
+                            <a href="{{ route('admin.reports.yearly-summary', ['year' => $summary['nextYear']]) }}" id="btn-next-year" class="btn btn-sm btn-light"aria-label="翌月">
                                 <i class="fas fa-chevron-right"></i>
                             </a>                               
                         </div>                    
@@ -40,32 +39,35 @@
                         <table id="monthlySummaryTable" class="table table-bordered table-striped">
                             <thead>
                                 <tr>
-                                    <th style="width: 15%">年</th>
                                     <th style="width: 15%">月</th>
+                                    <th style="width: 15%">~</th>
+                                    <th style="width: 15%">繰越金額</th>
                                     <th class="text-right">総収入</th>
                                     <th class="text-right">総支出</th>
                                     <th class="text-right">純残高</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($monthlySummary as $summary)
+                                @forelse($summary['monthlySummary'] as $month)
                                 <tr>
-                                    <td>{{ $summary->year }}年</td>
-                                    <td>{{ $summary->month }}月</td>
-                                    
-                                    {{-- Total Income (Green for positive value) --}}
-                                    <td class="text-right text-success font-weight-bold">
-                                        {{ number_format($summary->total_income) }} 円
+                                    <td>{{ $month['month'] }}</td>
+                                    <td>{{ $month['range'] }}</td>
+
+                                    <td class="text-right">
+                                        {{ number_format($month['totalIncome']) }} 円
                                     </td>
                                     
-                                    {{-- Total Expense (Red for negative implication) --}}
-                                    <td class="text-right text-danger">
-                                        {{ number_format($summary->total_expense) }} 円
+                                    <td class="text-right">
+                                        {{ number_format($month['totalIncome']) }} 円
+                                    </td>
+                                    
+                                    <td class="text-right">
+                                        {{ number_format($month['totalExpense']) }} 円
                                     </td>
                                     
                                     {{-- Net Balance (Color changes based on positive/negative) --}}
-                                    <td class="text-right font-weight-bold @if($summary->net_balance > 0) text-success @elseif($summary->net_balance < 0) text-danger @else text-secondary @endif">
-                                        {{ number_format($summary->net_balance) }} 円
+                                    <td class="text-right @if($month['balance'] > 0) text-success @elseif($month['balance'] < 0) text-danger @else text-secondary @endif">
+                                        {{ number_format($month['balance']) }} 円
                                     </td>
                                 </tr>
                                 @empty

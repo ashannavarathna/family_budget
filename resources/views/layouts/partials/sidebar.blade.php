@@ -44,9 +44,9 @@
 
                 {{-- 月間サマリーレポート --}}
                 <li class="nav-item">
-                    <a href="{{ route('admin.reports.monthly-summary') }}" class="nav-link">
+                    <a href="{{ route('admin.reports.yearly-summary') }}" class="nav-link">
                         <i class="nav-icon fas fa-chart-line"></i>
-                        <p>月間サマリー</p>
+                        <p>年次サマリー</p>
                     </a>
                 </li>
 
@@ -74,8 +74,15 @@
                             取引カテゴリー
                         </p>
                     </a>
-                </li>                                
-               
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.account-close') }}" class="nav-link">
+                        <i class="nav-icon fas fa-coins"></i>
+                        <p>
+                            期間締め
+                        </p>
+                    </a>
+                </li>
             </ul>
         </nav>
 

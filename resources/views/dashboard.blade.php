@@ -15,6 +15,9 @@
         display: inline-block;
     }
 
+    .list-group-item.pl-4 {
+        padding-left: 2rem !important;
+    }
 </style>
 @endsection
 
@@ -29,27 +32,40 @@
     <div class="container-fluid">
 
         <div class="row">
-            <div class="col-12">
+            <div class="col-md-6">
                 <div class="card">
                     <div class="card-header text-center">
-                        <!-- h3 class="card-title">カテゴリ別支出</h3 -->
-                        <h5 class="mb-1" id="header-month-label">2021年2月</h5>
-                        <small id="header-month-range">(2月1日〜2月28日)</small>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <!-- Previous month -->
+                            <button id="btn-prev-month" class="btn btn-sm btn-light" aria-label="前月">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>                            
+                            <!-- Month label -->
+                            <div>
+                                <!-- h3 class="card-title">カテゴリ別支出</h3 -->
+                                <h5 class="mb-1" id="h-month-label">****年*月</h5>
+                                <small id="h-month-range">(*月*日〜*月*日)</small>
+                            </div>
+                            <!-- Next month -->
+                            <button id="btn-next-month" class="btn btn-sm btn-light"aria-label="翌月">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>                            
+                        </div>
                     </div>
                     <div class="card-body text-center">
                         <!-- Total Summary -->
                         <div class="row mb-3 py-2 row-bordered">
                             <div class="col-4">
                                 <div class="text-muted">収入</div>
-                                <strong id="header-total-income">¥24,928</strong>
+                                <strong id="h-total-income">¥0</strong>
                             </div>
                             <div class="col-4">
                                 <div class="text-muted">支出</div>
-                                <strong id="header-total-expense">¥10,066</strong>
+                                <strong id="h-total-expense">¥0</strong>
                             </div>
                             <div class="col-4">
                                 <div class="text-muted">収支</div>
-                                <strong id="header-month-balance">¥14,862</strong>
+                                <strong id="h-month-balance">¥0</strong>
                             </div>
                         </div>
                         <!-- Draw chart -->
@@ -63,90 +79,12 @@
 
                         <div class="row">
                             <div class="col-12">
-                                <div class="list-group list-group-flush" id="expense-list">
-
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="category-dot" style="background:#e74c3c"></span>
-                                            外食
-                                        </div>
-                                        <strong>¥5,131</strong>
-                                    </div>
-
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="category-dot" style="background:#f5b7b1"></span>
-                                            食料品
-                                        </div>
-                                        <strong>¥600</strong>
-                                    </div>
-
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="category-dot" style="background:#af7ac5"></span>
-                                            映画・音楽・ゲーム
-                                        </div>
-                                        <strong>¥1,430</strong>
-                                    </div>
-
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="category-dot" style="background:#d2b4de"></span>
-                                            本
-                                        </div>
-                                        <strong>¥675</strong>
-                                    </div>
-
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="category-dot" style="background:#5dade2"></span>
-                                            教養・教育
-                                        </div>
-                                        <strong>¥1,500</strong>
-                                    </div>
+                                <div class="list-group list-group-flush" id="category-list">
 
                                 </div>
                             </div>
                         </div>
 
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">月次概要 ({{ date('Y') }})</h3>
-                    </div>
-                    <div class="card-body p-2">
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>月</th>
-                                        <th>収入</th>
-                                        <th>支出</th>
-                                        <th>残高</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($monthlySummary as $summary)
-                                    <tr>
-                                        <td><span class="badge">{{ DateTime::createFromFormat('!m', $summary->month)->format('F (m)')
-                        }}</span></td>
-                                        <td class="text-success">¥{{ number_format($summary->total_income) }}</td>
-                                        <td class="text-danger">¥{{ number_format($summary->total_expense) }}</td>
-                                        <td class="font-weight-bold {{ $summary->net_balance >= 0 ? 'text-success' : 'text-danger' }}">
-                                            ¥{{ number_format($summary->net_balance) }}
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -160,58 +98,152 @@
 
 <script>
     let categoryChart;
+    let currentOffSetMonth = 0;
+
+    // central color palettes
+    const COLOR_PALETTES = {
+        expense: [
+            '#e74c3c', '#f1948a', '#bb8fce',
+            '#7fb3d5', '#48c9b0', '#f7dc6f',
+            '#5dade2', '#af7ac5', '#d2b4de'
+        ],
+        income: [
+            '#7f8c8d', '#95a5a6', '#b2babb',
+            '#ccd1d1', '#aeb6bf'
+        ]
+    };    
+
+    // Cache DOM
+    const dom = {
+        monthLabel: document.getElementById('h-month-label'),
+        monthRange: document.getElementById('h-month-range'),
+        income: document.getElementById('h-total-income'),
+        expense: document.getElementById('h-total-expense'),
+        balance: document.getElementById('h-month-balance'),
+    }
+
+
+    /* Load summary by month */
+    document.getElementById('btn-prev-month').addEventListener('click', () => {
+        currentOffSetMonth = currentOffSetMonth - 1;
+        loadChart(currentOffSetMonth);
+        
+    });
+    document.getElementById('btn-next-month').addEventListener('click', () => {
+        currentOffSetMonth = currentOffSetMonth + 1;
+        loadChart(currentOffSetMonth);
+    });
+
+    // a shared color map
+    function buildCategoryColorMap(categories) {
+        const map = {};
+
+        ['expense', 'income'].forEach(type => {
+            const palette = COLOR_PALETTES[type];
+
+            categories[type].forEach((item, index) => {
+                map[`${type}:${item.category}`] =
+                    palette[index % palette.length];
+            });
+        });
+
+        return map;
+    }    
+
 
     /* ======================
         init headers
     ====================== */
     function initHeaders(headers){
-        console.log(headers);
+        dom.monthLabel.textContent = headers.month_label;
+        dom.monthRange.textContent = `(${headers.range_label})`;
 
-        const s_date = new Date(headers.start_date);
-        const e_date = new Date(headers.end_date);
+        dom.income.textContent  = `¥${headers.totals.income.toLocaleString()}`;
+        dom.expense.textContent = `¥${headers.totals.expense.toLocaleString()}`;
+        dom.balance.textContent = `¥${(headers.totals.income - headers.totals.expense).toLocaleString()}`;
+        dom.balance.classList.remove('text-success', 'text-danger');
+        if((headers.totals.income - headers.totals.expense) < 0){
+            dom.balance.classList.add('text-danger');
+        }
 
-        $monthLableElem = document.getElementById('header-month-label');
-        $monthRangeElem = document.getElementById('header-month-range');
-        $totalIncomeElem = document.getElementById('header-total-income');
-        $totalExpenseElem = document.getElementById('header-total-expense');
-        $monthBlanceElem = document.getElementById('header-month-balance');
+        if((headers.totals.income - headers.totals.expense) > 0){
+            dom.balance.classList.add('text-success');
+        }
 
-        $monthLableElem.textContent = `${headers.year}年${headers.month}月`;
-        $monthRangeElem.textContent = `(${s_date.getUTCMonth() + 1}月${s_date.getUTCDate()}日~${e_date.getUTCMonth() + 1}月${e_date.getUTCDate()}日)`;
-        $totalIncomeElem.textContent = `¥${headers.totals.income}`;
-        $totalExpenseElem.textContent = `¥${headers.totals.expense}`;
-        $monthBlanceElem.textContent = `¥${(headers.totals.income - headers.totals.expense)}`;
     }
 
     /* ======================
         Generate category list
     ====================== */
     function renderCategoryList(categories, containerId) {
+
+        // Colors for categories
         const categoryColors = [
             '#e74c3c','#f1948a','#bb8fce',
             '#7fb3d5','#48c9b0','#f7dc6f',
             '#5dade2','#af7ac5','#d2b4de'
-        ];    
+        ];
+
+        const typeLabels = {
+            expense: '支出',
+            income: '収入'
+        };        
+
         const container = document.getElementById(containerId);
         container.innerHTML = '';
 
         categories.forEach((item, index) => {
             const color = categoryColors[index % categoryColors.length];
 
-            const row = document.createElement('div');
-            row.className = 'list-group-item d-flex justify-content-between align-items-center';
-
-            row.innerHTML = `
-            <div class="d-flex align-items-center">
-                <span class="category-dot mr-2" style="background:${color}"></span>
-                ${item.category}
-            </div>
-            <strong>¥${Number(item.total).toLocaleString()}</strong>
-            `;
-
-            container.appendChild(row);
+            container.insertAdjacentHTML(
+                'beforeend', 
+                `<div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                    <span class="category-dot mr-2" style="background:${color}"></span>
+                    ${item.category}
+                    </div>
+                    <strong>¥${Number(item.total).toLocaleString()}</strong>
+                </div>`
+            );
         });
     }
+
+    // Grouped Categories By Income, Expense
+    function renderGroupedCategoryList(categories, colorMap) {
+        const container = document.getElementById('category-list');
+        container.innerHTML = '';
+
+        const typeLabels = {
+            expense: '支出',
+            income: '収入'
+        };
+
+        Object.entries(categories).forEach(([typeKey, items]) => {
+            if (!items.length) return;
+
+            /* ---- Type Header ---- */
+            container.insertAdjacentHTML('beforeend', `
+            <div class="list-group-item bg-light text-muted font-weight-bold text-left">
+                ${typeLabels[typeKey]}
+            </div>
+            `);
+
+            /* ---- Category Items ---- */
+            items.forEach((item, index) => {
+            const color = colorMap[`${typeKey}:${item.category}`];
+
+            container.insertAdjacentHTML('beforeend', `
+                <div class="list-group-item d-flex justify-content-between align-items-center pl-4">
+                <div class="d-flex align-items-center">
+                    <span class="category-dot mr-2" style="background:${color}"></span>
+                    ${item.category}
+                </div>
+                <strong>¥${Number(item.total).toLocaleString()}</strong>
+                </div>
+            `);
+            });
+        });
+    }   
 
     /* ======================
        Center Text Plugin
@@ -345,76 +377,73 @@
     /* ======================
        Chart Init
     ====================== */
-    document.addEventListener('DOMContentLoaded', loadChart);
+    document.addEventListener('DOMContentLoaded', loadChart(currentOffSetMonth));
 
-    function loadChart() {
-        fetch('{{ route("admin.reports.current-month-summary") }}')
+    function loadChart(offset_month) {
+        fetch(`{{ route("admin.reports.current-month-summary") }}?offset-month=${offset_month}`)
             .then(res => res.json())
             .then(data => {
-                // adding totals
+                //console.log(data);
                 initHeaders(data.headers);
+                //renderCategoryList(data.categories.expense, 'expense-list');
+                //renderCategoryList(data.categories.income, 'income-list');
 
-                // gen category list
-                renderCategoryList(data.categories.expense, 'expense-list');
+                const colorMap = buildCategoryColorMap(data.categories);
+                renderGroupedCategoryList(data.categories, colorMap);
 
                 // drawing chart for expense
                 const labels = data.categories.expense.map(i => i.category);
                 const values = data.categories.expense.map(i => Number(i.total));
-                renderChart(labels, values);
+                const colors = data.categories.expense.map(
+                    i => colorMap[`expense:${i.category}`]
+                );
+
+                renderChart(labels, values, colors);
+
             });
     }
 
-    function renderChart(labels, values) {
+    function renderChart(labels, values, colors) {
         const ctx = document.getElementById('categoryChart');
 
         if (categoryChart) categoryChart.destroy();
 
         categoryChart = new Chart(ctx, {
-            type: 'doughnut'
-            , data: {
-                labels
-                , datasets: [{
-                    data: values
-                    , backgroundColor: [
-                        '#e74c3c', '#f1948a', '#bb8fce'
-                        , '#7fb3d5', '#48c9b0', '#f7dc6f'
-                    ]
-                    , borderColor: '#fff'
-                    , borderWidth: 2
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: colors,
+                    borderColor: '#fff',
+                    borderWidth: 2
                 }]
-            }
-            , options: {
-                responsive: true
-                , maintainAspectRatio: false
-                , cutout: '70%'
-                , layout: {
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                layout: {
                     //padding: { top: 30, bottom: 30, left: 40,right: 40}
                     //custom padding desktop - mobile
-                    padding: window.innerWidth > 576 ? {
-                        top: 30
-                        , bottom: 30
-                        , left: 40
-                        , right: 40
-                    } : {
-                        top: 20
-                        , bottom: 20
-                        , left: 20
-                        , right: 20
-                    }
-                }
-                , plugins: {
+                    padding: window.innerWidth > 576 ? 
+                    { top: 30, bottom: 30, left: 40, right: 40} 
+                    : 
+                    {top: 20, bottom: 20, left: 20, right: 20}
+                },
+                plugins: {
                     legend: {
                         display: false
-                    }
-                    , tooltip: {
+                    },
+                    tooltip: {
                         enabled: true
                     }
                 }
-            }
-            , plugins: [
-                centerTextPlugin
-                , sliceTextPlugin
-                , calloutPlugin
+            },
+            plugins: [
+                centerTextPlugin,
+                sliceTextPlugin,
+                calloutPlugin
             ]
         });
 
