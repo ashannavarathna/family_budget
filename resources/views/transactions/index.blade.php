@@ -223,7 +223,7 @@
             `
             <a href="transactions/${id}" class="btn btn-info btn-sm" title="表示"><i class="fas fa-eye"></i> 表示</a>
             <a href="transactions/${id}/edit" class="btn btn-warning btn-sm" title="編集"><i class="fas fa-edit"></i> 編集</a>
-            <form action="transactions/${id}/destroy" method="POST" class="d-inline" onsubmit="return confirm('削除してもよろしいですか？')">
+            <form action="transactions/${id}" method="POST" class="d-inline" onsubmit="return confirm('削除してもよろしいですか？')">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn btn-danger btn-sm" title="削除">
