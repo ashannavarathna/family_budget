@@ -537,5 +537,30 @@ class VirtualViewService
         ];
     }
 
+
+    public static function getAccountPeriodByYearMonth(int $year, int $month)
+    {
+        $baseDate = Carbon::create($year, $month, 1);
+        $cutoffDay = config('constants.account_cutoff_day');
+
+        if ($baseDate->day <= $cutoffDay) {
+            $periodEnd = $baseDate->copy()->day($cutoffDay);
+            $periodStart = $periodEnd->copy()->subMonth()->addDay();
+        } else {
+            $periodEnd = $baseDate->copy()->addMonth()->day($cutoffDay);
+            $periodStart = $baseDate->copy()->day($cutoffDay)->addDay();
+        }
+
+        return [
+            'baseDate'     => $baseDate,
+            'periodStart'  => $periodStart->startOfDay(),
+            'periodEnd'    => $periodEnd->endOfDay(),
+            'year'         => $year,
+            'month'        => $month,
+            'month_label'  => $baseDate->format('Y年m月'),
+            'range_label'  => $periodStart->format('n月j日') . '〜' . $periodEnd->format('n月j日'),
+        ];
+    }    
+
     
 }

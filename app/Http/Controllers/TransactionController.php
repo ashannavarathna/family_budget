@@ -33,28 +33,7 @@ class TransactionController extends Controller
         if ($request->has('category_id') && $request->category_id != '') {
             $query->where('category_id', $request->category_id);
         }
-
-        // Filter by date range
- /*        if ($request->has('start_date') && $request->start_date != '') {
-            $query->where('date', '>=', $request->start_date);
-        }else{
-            // set to current account period start date
-            $query->where('date', '>=', VirtualViewService::getAccountPeriod(0)['periodStart']->startOfDay()->toDateString());
-        }
-
-        if ($request->has('end_date') && $request->end_date != '') {
-            $query->where('date', '<=', $request->end_date);
-        }else{
-            // set to curent account period end date
-            $query->where('date', '<=', VirtualViewService::getAccountPeriod(0)['periodEnd']->startOfDay()->toDateString());
-        } */
-
-        // Date Filtering Logic
-        /*         NEVER use toDateString() for filtering DATETIME columns
-        $startDate = $request->input('start_date') ?: VirtualViewService::getAccountPeriod(0)['periodStart']->startOfDay()->toDateString();
-        $endDate = $request->input('end_date') ?: VirtualViewService::getAccountPeriod(0)['periodEnd']->endOfDay()->toDateString();
-        $query->where('date', '>=', $startDate)->where('date', '<=', $endDate); */
-
+        
         $startDate = $request->filled('start_date')
             ? Carbon::parse($request->start_date)->startOfDay()
             : VirtualViewService::getAccountPeriod(0)['periodStart']->copy()->startOfDay();

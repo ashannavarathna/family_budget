@@ -76,7 +76,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('admin.account-close') }}" class="nav-link">
+                    <a href="{{ route('admin.account-periods.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-coins"></i>
                         <p>
                             期間締め

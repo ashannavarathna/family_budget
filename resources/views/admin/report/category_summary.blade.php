@@ -109,34 +109,56 @@
                 {{-- Card for the Report Table --}}
                 <div class="card">
                     <div class="card-header">
-                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
-                            <div>
-                                <h3 class="card-title text-xs text-uppercase text-muted" style="font-size: 1.25rem;">
-                                    <i class="fas fa-exchange-alt mr-1"></i> カテゴリーサマリー (Category Summary)
-                                </h3>
-                                <br>
-                                <small class="text-muted">
-                                    {{ $data['dateFrom'] ?? 'start' }} 〜 {{ $data['dateTo'] ??  'End' }}
-                                </small>
+                        <div class="mb-1 d-flex flex-column flex-md-row justify-content-between align-items-center">
+                            <h3 class="card-title text-uppercase text-muted" style="font-size: 1.25rem;">
+                                <i class="fas fa-exchange-alt mr-1"></i> カテゴリーサマリ
+                            </h3>
+                            <small class="text-muted d-block mt-1">
+                                {{ $data['dateFrom'] ?? 'start' }} 〜 {{ $data['dateTo'] ??  'End' }}
+                            </small>
+                        </div>
+
+                        <div class="mt-3">
+                            {{-- Carried Forward --}}
+                            <div class="d-flex justify-content-between border-bottom py-2">
+                                
+                                <span class="text-muted"><i class="fas fa-wallet"></i> 繰越残高 (Opening Balance)</span>
+                                <span class="font-weight-bold">
+                                    ¥{{ number_format( $data['totals']['carriedForward'] ?? 0) }}
+                                </span>
                             </div>
 
-                            <div class="d-flex text-center mt-3 mt-md-0">
-                                <div class="px-3 border-right">
-                                    <div class="text-xs text-uppercase text-muted">収入 (Income)</div>
-                                    <span class="text-success font-weight-bold">¥{{ number_format($data['totals']['totalIncome']) }}</span>
-                                </div>
-                                <div class="px-3 border-right">
-                                    <div class="text-xs text-uppercase text-muted">支出 (Expense)</div>
-                                    <span class="text-danger font-weight-bold">¥{{ number_format($data['totals']['totalExpense']) }}</span>
-                                </div>
-                                <div class="px-3">
-                                    <div class="text-xs text-uppercase text-muted">収支 (Net Amount)</div>
-                                    <span class="text-primary font-weight-bold">
-                                        ¥{{ number_format(($data['totals']['totalIncome']) - ($data['totals']['totalExpense'])) }}
-                                    </span>
-                                </div>
+                            {{-- Income --}}
+                            <div class="d-flex justify-content-between border-bottom py-2">
+                                
+                                <span class="text-muted"><i class="fas fa-arrow-circle-down"></i> 収入 (Income)</span>
+                                <span class="text-success font-weight-bold">
+                                    ¥{{ number_format($data['totals']['totalIncome'] ?? 0) }}
+                                </span>
                             </div>
-                        </div>
+
+                            {{-- Expense --}}
+                            <div class="d-flex justify-content-between border-bottom py-2">
+                                
+                                <span class="text-muted"><i class="fas fa-arrow-circle-up"></i> 支出 (Expence)</span>
+                                <span class="text-danger font-weight-bold">
+                                    ¥{{ number_format($data['totals']['totalExpense'] ?? 0) }}
+                                </span>
+                            </div>
+
+                            {{-- Balance --}}
+                            <div class="d-flex justify-content-between pt-2">
+                                
+                                <span class="text-muted"><i class="fas fa-coins"></i> 収支 (Balance)</span>
+                                <span class="text-primary font-weight-bold">
+                                    ¥{{ number_format(
+                                        ($data['totals']['carriedForward'] ?? 0)
+                                        + ($data['totals']['totalIncome'] ?? 0)
+                                        - ($data['totals']['totalExpense'] ?? 0)
+                                    ) }}
+                                </span>
+                            </div>
+                        </div>                            
                     </div> 
                     <div class="card-body">
                         <div class="row g-3">

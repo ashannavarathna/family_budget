@@ -83,8 +83,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/reports/current-month-summary', 'Admin\ReportController@currentMonthSummary')->name('reports.current-month-summary');
     Route::get('/reports/yearly-summary', 'Admin\ReportController@yearlySummary')->name('reports.yearly-summary');
 
-    Route::get('/account-close', [AccountPeriodController::class, 'index'])->name('account-close');
-    Route::get('/account/close', [AccountPeriodController::class, 'closePreview'])->name('account.close.preview');
-    Route::post('/account/close', [AccountPeriodController::class, 'closeConfirm'])->name('account.close.confirm');
+    // Account period controller
+    Route::resource('/account-periods', 'Admin\AccountPeriodController');
+
+    // Account close routes
+    Route::post('/account-periods/close', [AccountPeriodController::class, 'close'])->name('account-periods.close');
 
 });

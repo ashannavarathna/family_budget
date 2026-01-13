@@ -55,17 +55,21 @@
                     <div class="card-body text-center">
                         <!-- Total Summary -->
                         <div class="row mb-3 py-2 row-bordered">
-                            <div class="col-4">
-                                <div class="text-muted">収入</div>
-                                <strong id="h-total-income">¥0</strong>
+                            <div class="col-3">
+                                <div class="text-muted"><i class="fas fa-wallet"></i> 繰越金</div>
+                                <strong id="h-opening-balance">¥0</strong>
                             </div>
-                            <div class="col-4">
-                                <div class="text-muted">支出</div>
-                                <strong id="h-total-expense">¥0</strong>
+                            <div class="col-3">
+                                <div class="text-muted"><i class="fas fa-arrow-circle-down"></i> 収入</div>
+                                <strong id="h-total-income" class="text-success">¥0</strong>
                             </div>
-                            <div class="col-4">
-                                <div class="text-muted">収支</div>
-                                <strong id="h-month-balance">¥0</strong>
+                            <div class="col-3">
+                                <div class="text-muted"><i class="fas fa-arrow-circle-up"></i> 支出</div>
+                                <strong id="h-total-expense" class="text-danger">¥0</strong>
+                            </div>
+                            <div class="col-3">
+                                <div class="text-muted"><i class="fas fa-coins"></i> 収支</div>
+                                <strong id="h-month-balance" class="text-primary">¥0</strong>
                             </div>
                         </div>
                         <!-- Draw chart -->
@@ -161,14 +165,14 @@
         dom.income.textContent  = `¥${headers.totals.income.toLocaleString()}`;
         dom.expense.textContent = `¥${headers.totals.expense.toLocaleString()}`;
         dom.balance.textContent = `¥${(headers.totals.income - headers.totals.expense).toLocaleString()}`;
-        dom.balance.classList.remove('text-success', 'text-danger');
-        if((headers.totals.income - headers.totals.expense) < 0){
-            dom.balance.classList.add('text-danger');
-        }
+        //dom.balance.classList.remove('text-success', 'text-danger');
+        //if((headers.totals.income - headers.totals.expense) < 0){
+        //    dom.balance.classList.add('text-danger');
+        //}
 
-        if((headers.totals.income - headers.totals.expense) > 0){
-            dom.balance.classList.add('text-success');
-        }
+        //if((headers.totals.income - headers.totals.expense) > 0){
+        //    dom.balance.classList.add('text-success');
+        //}
 
     }
 
