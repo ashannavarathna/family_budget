@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AccountPeriod;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -389,7 +390,14 @@ class VirtualViewService
         $accountPeriod = VirtualViewService::getAccountPeriod($offsetMonth);
         $startDate = $accountPeriod['periodStart']->startOfDay();
         $endDate = $accountPeriod['periodEnd']->endOfDay();
-        $baseDate = $accountPeriod['baseDate'];
+        //$baseDate = $accountPeriod['baseDate'];
+
+        //=========================
+        // Acoount Period Opening Blance
+        //=========================
+        $openingBalance = AccountPeriod::where('period_year', '=', $accountPeriod['year'])
+                            ->where('period_month', '=', $accountPeriod['month'])
+                            ->value('opening_balance') ?? 0;
 
         //==========================
         // TOTAL (INCOME / EXPENSE)
@@ -427,11 +435,12 @@ class VirtualViewService
 
         return [
             'headers' => [
-                'year' => $baseDate->year,
-                'month' => $baseDate->month,
-                'month_label' => $baseDate->format('Y年m月'),
-                'range_label' => $startDate->format('n月j日') . '〜' . $endDate->format('n月j日'),
+                'year' => $accountPeriod['year'],
+                'month' => $accountPeriod['month'],
+                'month_label' => $accountPeriod['month_label'],
+                'range_label' => $accountPeriod['range_label'],
                 'totals' => [
+                    'opening_balance' => (int) $openingBalance,
                     'income' => (int) ($totals['収入'] ?? 0),
                     'expense' => (int) ($totals['支出'] ?? 0)
                 ]
@@ -514,6 +523,8 @@ class VirtualViewService
 
     }
 
+
+    /* 20260114 stopeed bugged     
     public static function getAccountPeriod($offsetMonth = 0){
         $baseDate = Carbon::today()->addMonths($offsetMonth);
         $cutoffDay = config('constants.account_cutoff_day');
@@ -535,7 +546,40 @@ class VirtualViewService
             'month_label' => $baseDate->format('Y年m月'),
             'range_label' => $periodStart->startOfDay()->format('n月j日') . '〜' . $periodEnd->endOfDay()->format('n月j日'),
         ];
+    } */
+
+    //20260114 updated    
+    public static function getAccountPeriod($offsetMonth = 0){
+        $today = Carbon::today();
+        $cutoffDay = config('constants.account_cutoff_day');
+
+        // Shift basedate by offset
+        $baseDate = $today->copy()->addMonths($offsetMonth);
+
+
+        if ($baseDate->day <= $cutoffDay) {
+            $periodEnd = $baseDate->copy()->day($cutoffDay);
+            $periodStart = $periodEnd->copy()->subMonth()->addDay();
+        } else {
+            $periodEnd = $baseDate->copy()->addMonth()->day($cutoffDay);
+            $periodStart = $baseDate->copy()->day($cutoffDay)->addDay();
+        }
+
+        // Accounting month is determined by period END
+        $accountingYear  = $periodEnd->year;
+        $accountingMonth = $periodEnd->month;        
+        
+        return [
+            'baseDate' => $baseDate, 
+            'periodStart' => $periodStart->startOfDay(), 
+            'periodEnd' => $periodEnd->endOfDay(),
+            'year' => $accountingYear,
+            'month' => $accountingMonth,
+            'month_label' => $periodEnd->format('Y年m月'),
+            'range_label' => $periodStart->startOfDay()->format('n月j日') . '〜' . $periodEnd->endOfDay()->format('n月j日'),
+        ];
     }
+
 
 
     public static function getAccountPeriodByYearMonth(int $year, int $month)
@@ -553,8 +597,8 @@ class VirtualViewService
 
         return [
             'baseDate'     => $baseDate,
-            'periodStart'  => $periodStart->startOfDay(),
-            'periodEnd'    => $periodEnd->endOfDay(),
+            'periodStart'  => $periodStart,
+            'periodEnd'    => $periodEnd,
             'year'         => $year,
             'month'        => $month,
             'month_label'  => $baseDate->format('Y年m月'),

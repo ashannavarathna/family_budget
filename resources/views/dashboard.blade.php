@@ -121,6 +121,7 @@
     const dom = {
         monthLabel: document.getElementById('h-month-label'),
         monthRange: document.getElementById('h-month-range'),
+        openingBalance: document.getElementById('h-opening-balance'),
         income: document.getElementById('h-total-income'),
         expense: document.getElementById('h-total-expense'),
         balance: document.getElementById('h-month-balance'),
@@ -162,9 +163,11 @@
         dom.monthLabel.textContent = headers.month_label;
         dom.monthRange.textContent = `(${headers.range_label})`;
 
+        dom.openingBalance.textContent  = `¥${headers.totals.opening_balance.toLocaleString()}`;
         dom.income.textContent  = `¥${headers.totals.income.toLocaleString()}`;
         dom.expense.textContent = `¥${headers.totals.expense.toLocaleString()}`;
-        dom.balance.textContent = `¥${(headers.totals.income - headers.totals.expense).toLocaleString()}`;
+        dom.balance.textContent = `¥${(headers.totals.opening_balance + headers.totals.income - headers.totals.expense).toLocaleString()}`;
+        
         //dom.balance.classList.remove('text-success', 'text-danger');
         //if((headers.totals.income - headers.totals.expense) < 0){
         //    dom.balance.classList.add('text-danger');

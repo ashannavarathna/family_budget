@@ -119,13 +119,9 @@
                         </div>
 
                         <div class="mt-3">
-                            {{-- Carried Forward --}}
+                            {{-- Info --}}
                             <div class="d-flex justify-content-between border-bottom py-2">
-                                
-                                <span class="text-muted"><i class="fas fa-wallet"></i> 繰越残高 (Opening Balance)</span>
-                                <span class="font-weight-bold">
-                                    ¥{{ number_format( $data['totals']['carriedForward'] ?? 0) }}
-                                </span>
+                                <span class="text-muted">合計 (Totals)</span>
                             </div>
 
                             {{-- Income --}}
@@ -151,10 +147,7 @@
                                 
                                 <span class="text-muted"><i class="fas fa-coins"></i> 収支 (Balance)</span>
                                 <span class="text-primary font-weight-bold">
-                                    ¥{{ number_format(
-                                        ($data['totals']['carriedForward'] ?? 0)
-                                        + ($data['totals']['totalIncome'] ?? 0)
-                                        - ($data['totals']['totalExpense'] ?? 0)
+                                    ¥{{ number_format(($data['totals']['totalIncome'] ?? 0) - ($data['totals']['totalExpense'] ?? 0)
                                     ) }}
                                 </span>
                             </div>

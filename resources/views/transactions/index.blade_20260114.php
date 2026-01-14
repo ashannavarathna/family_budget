@@ -94,7 +94,7 @@
                     <div class="card-header">
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
                             <div>
-                                <h3 class="card-title text-xs text-uppercase text-muted" style="font-size: 1.25rem;">
+                                <h3 class="card-title text-uppercase text-muted">
                                     <i class="fas fa-exchange-alt mr-1"></i> 取引 (Transactions)
                                 </h3>
                                 <br>

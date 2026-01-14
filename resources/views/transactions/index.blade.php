@@ -105,10 +105,7 @@
                             {{-- Carried Forward --}}
                             <div class="d-flex justify-content-between border-bottom py-2">
                                 
-                                <span class="text-muted"><i class="fas fa-wallet"></i> 繰越残高 (Opening Balance)</span>
-                                <span class="font-weight-bold">
-                                    ¥{{ number_format( $carriedForward ?? 0) }}
-                                </span>
+                                <span class="text-muted">合計 (Totals)</span>
                             </div>
 
                             {{-- Income --}}
@@ -134,10 +131,7 @@
                                 
                                 <span class="text-muted"><i class="fas fa-coins"></i> 収支 (Balance)</span>
                                 <span class="text-primary font-weight-bold">
-                                    ¥{{ number_format(
-                                        ($carriedForward ?? 0)
-                                        + ($totals->total_income ?? 0)
-                                        - ($totals->total_expense ?? 0)
+                                    ¥{{ number_format(($totals->total_income ?? 0) - ($totals->total_expense ?? 0)
                                     ) }}
                                 </span>
                             </div>

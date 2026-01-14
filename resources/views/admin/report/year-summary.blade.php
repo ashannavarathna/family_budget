@@ -45,7 +45,7 @@
                                         <!-- Top Line: Month / Carry Over -->
                                         <div class="d-flex justify-content-between align-items-center mb-1">
                                             <span class="badge badge-dark badge-xs">{{ $month['month'] }}月</span>
-                                            <span class="badge badge-info ">繰越: ¥{{ number_format($month['carryOver'] ?? 0) }}</span>
+                                            <span class="badge badge-info ">繰越: ¥{{ number_format($month['carryForward'] ?? 0) }}</span>
                                         </div>
 
                                         <!-- Bottom Section: Date Range (left) + stacked numbers (right) -->
